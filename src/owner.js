@@ -12,10 +12,8 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
     if (command === 'update') {
         await sock.sendMessage(from, { text: "🔄 System checking Git repository..." }, { quoted: msg });
         
-        // 🔥 REMOVED THE SECRET TOKEN - Safe to push to GitHub now!
         const repoUrl = "https://github.com/nicholas-pp8/EnigmaD20.git";
         
-        // SELF-HEALING LOGIC: If Git is missing, it will auto-initialize itself!
         if (!fs.existsSync('.git')) {
             await sock.sendMessage(from, { text: "⚙️ Git missing on server. Running automatic system repair..." }, { quoted: msg });
             
@@ -26,12 +24,9 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
                     return await sock.sendMessage(from, { text: `❌ Auto-Repair Failed:\n\n${err.message}` }, { quoted: msg });
                 }
                 await sock.sendMessage(from, { text: "✅ Git repository successfully repaired!\n\n⚠️ Restarting bot to sync all fresh files..." }, { quoted: msg });
-                setTimeout(() => {
-                    process.exit(1); 
-                }, 2000);
+                setTimeout(() => { process.exit(1); }, 2000);
             });
         } else {
-            // If Git exists normally, just run the regular pull
             exec(`git remote set-url origin ${repoUrl} && git pull origin main`, async (err, stdout, stderr) => {
                 if (err) {
                     return await sock.sendMessage(from, { text: `❌ Update Failed:\n\n${err.message}` }, { quoted: msg });
@@ -41,20 +36,23 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
                 }
                 
                 await sock.sendMessage(from, { text: `✅ Update Successful!\n\n${stdout}\n\n⚠️ Restarting to apply changes...` }, { quoted: msg });
-                
-                setTimeout(() => {
-                    process.exit(1); 
-                }, 2000);
+                setTimeout(() => { process.exit(1); }, 2000);
             });
         }
         return;
     }
 
-    // 3. System Settings Toggles
+    // 3. System Settings Toggles (FIXED: Added immediate presence update)
     const toggles = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline'];
     if (toggles.includes(command)) {
         const state = args[0]?.toLowerCase() === 'on';
         global.settings[command] = state;
+        
+        // FIX: If alwaysonline is toggled, apply it to WhatsApp immediately
+        if (command === 'alwaysonline') {
+            await sock.sendPresenceUpdate(state ? 'available' : 'unavailable');
+        }
+        
         await sock.sendMessage(from, { text: `✅ Setting *${command}* has been turned ${state ? 'ON' : 'OFF'}.` }, { quoted: msg });
         return;
     }
