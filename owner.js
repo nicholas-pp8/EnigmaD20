@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 const fs = require('fs');
-const { downloadContentFromMessage } = require('@whiskeysockets/baileys'); // 👈 ADDED for View Once Download
+const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
 
 async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
     
@@ -27,7 +27,7 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
 
         if (!datePart.includes('/') || !timePart.includes(':') || !['AM', 'PM'].includes(ampm)) {
             return await sock.sendMessage(from, { 
-                text: "❌ *Invalid Format!*\nPlease check your date or time format.\n\nExample: .sm 916290371061 01/06/2026 02:30 PM Hello!" 
+                text: "❌ *Invalid Format!*\nPlease check your date or time format." 
             }, { quoted: msg });
         }
 
@@ -43,37 +43,36 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         if (ampm === 'AM' && hour === 12) hour = 0;
 
         const hourStr = hour.toString().padStart(2, '0');
-        
         const targetDateStr = `${year}-${month}-${day}T${hourStr}:${minute}:00+05:30`;
         const targetTimeMs = new Date(targetDateStr).getTime();
         const currentTimeMs = Date.now();
 
         if (isNaN(targetTimeMs)) {
-            return await sock.sendMessage(from, { text: "❌ *Invalid date or time!* Make sure you use a valid calendar date." }, { quoted: msg });
+            return await sock.sendMessage(from, { text: "❌ *Invalid date or time!*" }, { quoted: msg });
         }
 
         const delay = targetTimeMs - currentTimeMs;
 
         if (delay <= 0) {
-            return await sock.sendMessage(from, { text: "❌ You cannot schedule a message for the past! Please provide a future time." }, { quoted: msg });
+            return await sock.sendMessage(from, { text: "❌ You cannot schedule a message for the past!" }, { quoted: msg });
         }
 
         await sock.sendMessage(from, { 
-            text: `✅ *Message Scheduled Successfully!*\n\n📅 *Date:* ${datePart}\n⏰ *Time:* ${timePart} ${ampm} (IST)\n👤 *To:* ${targetNumber}\n💬 *Message:* ${messageBody}` 
+            text: `✅ *Message Scheduled Successfully!*\n\n📅 *Date:* ${datePart}\n⏰ *Time:* ${timePart} ${ampm}\n👤 *To:* ${targetNumber}\n💬 *Message:* ${messageBody}` 
         }, { quoted: msg });
 
         setTimeout(async () => {
             try {
                 await sock.sendMessage(targetJid, { text: messageBody });
-                await sock.sendMessage(from, { text: `✅ Your scheduled message to ${targetNumber} was just delivered successfully!` });
+                await sock.sendMessage(from, { text: `✅ Your scheduled message to ${targetNumber} was delivered!` });
             } catch (err) {
-                console.error("Failed to send scheduled message:", err);
+                console.error("Scheduled msg error:", err);
             }
         }, delay);
         return;
     }
 
-    // 3. 💥 VIEW ONCE BYPASS LOGIC (.vv) 💥
+    // 3. 💥 UNIVERSAL VIEW ONCE BYPASS (.vv) 💥
     if (command === 'vv') {
         const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
         
@@ -81,21 +80,34 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
             return await sock.sendMessage(from, { text: "⚠️ Please *reply* to a View Once message with .vv to bypass it!" }, { quoted: msg });
         }
 
-        // Check if the replied message is actually a View Once message
-        const viewOnce = quoted.viewOnceMessage || quoted.viewOnceMessageV2 || quoted.viewOnceMessageV2Extension;
+        let mediaType = null;
+        let mediaContent = null;
 
-        if (!viewOnce) {
+        // Condition 1: Check for old direct flag structure
+        if (quoted.imageMessage?.viewOnce || quoted.videoMessage?.viewOnce || quoted.audioMessage?.viewOnce) {
+            mediaType = Object.keys(quoted).find(k => ['imageMessage', 'videoMessage', 'audioMessage'].includes(k));
+            mediaContent = quoted[mediaType];
+        } 
+        // Condition 2: Check for nested ViewOnce structures
+        else {
+            const vOnce = quoted.viewOnceMessage || quoted.viewOnceMessageV2 || quoted.viewOnceMessageV2Extension;
+            if (vOnce) {
+                // Sometimes Baileys nests it under .message, sometimes directly
+                const msgObj = vOnce.message || vOnce; 
+                mediaType = Object.keys(msgObj).find(k => ['imageMessage', 'videoMessage', 'audioMessage'].includes(k));
+                if (mediaType) {
+                    mediaContent = msgObj[mediaType];
+                }
+            }
+        }
+
+        if (!mediaContent || !mediaType) {
             return await sock.sendMessage(from, { text: "❌ The message you replied to is NOT a View Once message!" }, { quoted: msg });
         }
 
         await sock.sendMessage(from, { text: "🔓 *Decrypting View Once Message...*" }, { quoted: msg });
 
         try {
-            const mediaMessage = viewOnce.message;
-            const mediaType = Object.keys(mediaMessage)[0]; // imageMessage or videoMessage
-            const mediaContent = mediaMessage[mediaType];
-
-            // Downloading the media stream
             const stream = await downloadContentFromMessage(mediaContent, mediaType.replace('Message', ''));
             let buffer = Buffer.from([]);
             for await (const chunk of stream) {
@@ -104,7 +116,6 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
 
             const captionText = `🔓 *View Once Bypassed*\n\n` + (mediaContent.caption ? `💬 *Caption:* ${mediaContent.caption}` : '');
 
-            // Resending as a normal message
             if (mediaType === 'imageMessage') {
                 await sock.sendMessage(from, { image: buffer, caption: captionText }, { quoted: msg });
             } else if (mediaType === 'videoMessage') {
@@ -119,7 +130,7 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         }
     }
 
-    // 4. THE BULLETPROOF AUTO-UPDATE LOGIC
+    // 4. BULLETPROOF AUTO-UPDATE
     if (command === 'update') {
         await sock.sendMessage(from, { text: "🔄 System checking Git repository...\n⚠️ Using Force-Sync to ignore conflicts." }, { quoted: msg });
         
@@ -130,19 +141,15 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
             const initScript = `git init && git remote add origin ${repoUrl} && git branch -M main && git fetch --all && git reset --hard origin/main`;
             exec(initScript, async (err, stdout, stderr) => {
                 if (err) return await sock.sendMessage(from, { text: `❌ Auto-Repair Failed:\n\n${err.message}` }, { quoted: msg });
-                await sock.sendMessage(from, { text: "✅ Git repository successfully repaired!\n\n⚠️ Restarting bot to sync all fresh files..." }, { quoted: msg });
+                await sock.sendMessage(from, { text: "✅ Git repository successfully repaired!\n\n⚠️ Restarting bot..." }, { quoted: msg });
                 setTimeout(() => { process.exit(1); }, 2000);
             });
         } else {
             const forcePullScript = `git remote set-url origin ${repoUrl} && git clean -fd && git reset --hard HEAD && git pull origin main`;
             exec(forcePullScript, async (err, stdout, stderr) => {
-                if (err) {
-                    return await sock.sendMessage(from, { text: `❌ Update Failed:\n\n${err.message}` }, { quoted: msg });
-                }
-                if (stdout.includes('Already up to date.')) {
-                    return await sock.sendMessage(from, { text: "✅ The bot is already on the latest version!" }, { quoted: msg });
-                }
-                await sock.sendMessage(from, { text: `✅ Force Update Successful!\n\n${stdout}\n\n⚠️ Restarting to apply changes...` }, { quoted: msg });
+                if (err) return await sock.sendMessage(from, { text: `❌ Update Failed:\n\n${err.message}` }, { quoted: msg });
+                if (stdout.includes('Already up to date.')) return await sock.sendMessage(from, { text: "✅ The bot is already on the latest version!" }, { quoted: msg });
+                await sock.sendMessage(from, { text: `✅ Force Update Successful!\n\n${stdout}\n\n⚠️ Restarting...` }, { quoted: msg });
                 setTimeout(() => { process.exit(1); }, 2000);
             });
         }
