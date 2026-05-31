@@ -28,31 +28,33 @@ const { handlePlay, handleLyrics } = require('./src/download');
 const { handleTtt, handleMove, handleScramble, handleAnswer } = require('./src/game');
 const { handleOwnerCommands } = require('./src/owner');
 
-global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: true };
+// ⚙️ ADDED ANTIDELETE SETTING HERE
+global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: true, antidelete: false };
 const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
 const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217128296820869", "919339777647"];
 
-const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm', 'schedule'];
+// ⚙️ ADDED ANTIDELETE TO COMMAND LIST
+const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm', 'schedule', 'antidelete'];
 
 const app = express();
 app.get('/', (req, res) => res.send('Enigma D20 is running!'));
 app.listen(3000, () => console.log('\n[SERVER] Keep-alive server running on port 3000'));
 
-// ⏳ Uptime Formatter Function
 function formatUptime(seconds) {
     seconds = Number(seconds);
     const d = Math.floor(seconds / (3600 * 24));
     const h = Math.floor(seconds % (3600 * 24) / 3600);
     const m = Math.floor(seconds % 3600 / 60);
     const s = Math.floor(seconds % 60);
-    
     const dDisplay = d > 0 ? d + (d === 1 ? " day, " : " days, ") : "";
     const hDisplay = h > 0 ? h + (h === 1 ? " hour, " : " hours, ") : "";
     const mDisplay = m > 0 ? m + (m === 1 ? " min, " : " mins, ") : "";
     const sDisplay = s > 0 ? s + (s === 1 ? " sec" : " secs") : "";
-    
     return (dDisplay + hDisplay + mDisplay + sDisplay).replace(/,\s*$/, "");
 }
+
+// 💾 MEMORY CACHE: Aakhiri 500 messages ko save rakhne ke liye
+const messageCache = new Map();
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info');
@@ -116,12 +118,41 @@ async function startBot() {
             const msg = chatUpdate.messages[0];
             if (!msg.message) return;
 
+            const from = msg.key.remoteJid;
+
+            // 💥 ANTI-DELETE LOGIC: Delete hone wale messages ko pakadna 💥
+            if (msg.message.protocolMessage && msg.message.protocolMessage.type === 0) {
+                if (global.settings.antidelete) {
+                    const deletedKey = msg.message.protocolMessage.key;
+                    const originalMsg = messageCache.get(deletedKey.id); // Cache se message uthao
+                    
+                    if (originalMsg) {
+                        const deletedTime = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
+                        const senderNum = (deletedKey.participant || deletedKey.remoteJid).split('@')[0];
+                        const chatName = deletedKey.remoteJid.includes('@g.us') ? "Group Chat" : "Private Chat";
+                        const chatID = deletedKey.remoteJid;
+                        
+                        const notification = `♻️ *ANTI-DELETE ALERT* ♻️\n\n⏰ *Time Deleted:* ${deletedTime}\n👤 *Sender:* +${senderNum}\n📍 *Chat Type:* ${chatName}\n🆔 *Chat ID:* ${chatID}\n\n👇 *Recovered Message:*`;
+                        
+                        // Seedha DEVELOPER (Yourself) ko send karega
+                        await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { text: notification });
+                        await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { forward: originalMsg }); // Forward original deleted msg
+                    }
+                }
+                return; // Delete event ko aage normal message ki tarah process mat karo
+            }
+
+            // 💾 NORMAL MESSAGES KO CACHE MEIN SAVE KARNA (Max 500 msgs to save RAM)
+            if (messageCache.size > 500) {
+                messageCache.delete(messageCache.keys().next().value);
+            }
+            messageCache.set(msg.key.id, msg);
+
             if (msg.key.participant) msg.key.participant = msg.key.participant.split(':')[0] + '@s.whatsapp.net';
             if (msg.message.extendedTextMessage?.contextInfo?.participant) {
                 msg.message.extendedTextMessage.contextInfo.participant = msg.message.extendedTextMessage.contextInfo.participant.split(':')[0] + '@s.whatsapp.net';
             }
 
-            const from = msg.key.remoteJid;
             const isFromMe = msg.key.fromMe;
             const senderNum = (isFromMe ? sock.user.id : (msg.key.participant || msg.key.remoteJid)).split('@')[0].split(':')[0];
             const body = msg.message.conversation || msg.message.extendedTextMessage?.text || msg.message.imageMessage?.caption || msg.message.videoMessage?.caption || '';
@@ -149,7 +180,7 @@ async function startBot() {
                 if (speed < 0 || speed > 1000) speed = Math.floor(Math.random() * 30) + 15; 
                 const serverType = os.type() === 'Linux' ? 'Linux Engine' : os.type();
 
-                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📝 .lyrics - Get lyrics\n╰──────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
+                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📝 .lyrics - Get lyrics\n╰──────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ ♻️ .antidelete on/off - Auto-recover\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
                 
                 await sock.sendMessage(from, { text: menuText }, { quoted: msg });
             }
@@ -159,7 +190,6 @@ async function startBot() {
                 const finalSpeed = pSpeed > 0 && pSpeed < 1000 ? pSpeed : Math.floor(Math.random() * 30) + 15;
                 await sock.sendMessage(from, { text: `*Pong!* 🏓\nServer Speed: ${finalSpeed} ms` }, { quoted: msg });
             }
-            // ⏳ NEW RUNTIME COMMAND
             else if (command === 'runtime') {
                 const uptimeStr = formatUptime(process.uptime());
                 await sock.sendMessage(from, { text: `⏳ *Bot is running since ${uptimeStr}*` }, { quoted: msg });

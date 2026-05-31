@@ -8,7 +8,7 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         return await sock.sendMessage(from, { text: "❌ Only the Owner can use this command!" }, { quoted: msg });
     }
 
-    // 2. Schedule Message (.sm) - EXACTLY AS BEFORE
+    // 2. Schedule Message (.sm)
     if (command === 'sm' || command === 'schedule') {
         if (args.length < 5) {
             return await sock.sendMessage(from, { 
@@ -58,7 +58,7 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         }
 
         await sock.sendMessage(from, { 
-            text: `✅ *Message Scheduled Successfully!*\n\n📅 *Date:* ${datePart}\n⏰ *Time:* ${timePart} ${ampm} (IST)\n👤 *To:* ${targetNumber}\n💬 *Message:* ${messageBody}\n\n_(⚠️ Note: If the bot restarts or goes offline before this time, the scheduled message will be lost.)_` 
+            text: `✅ *Message Scheduled Successfully!*\n\n📅 *Date:* ${datePart}\n⏰ *Time:* ${timePart} ${ampm} (IST)\n👤 *To:* ${targetNumber}\n💬 *Message:* ${messageBody}` 
         }, { quoted: msg });
 
         setTimeout(async () => {
@@ -72,7 +72,7 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         return;
     }
 
-    // 3. 💥 THE BULLETPROOF AUTO-UPDATE LOGIC 💥
+    // 3. THE BULLETPROOF AUTO-UPDATE LOGIC
     if (command === 'update') {
         await sock.sendMessage(from, { text: "🔄 System checking Git repository...\n⚠️ Using Force-Sync to ignore conflicts." }, { quoted: msg });
         
@@ -87,7 +87,6 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
                 setTimeout(() => { process.exit(1); }, 2000);
             });
         } else {
-            // This line cleans all cached/error files first, resets everything, and then pulls!
             const forcePullScript = `git remote set-url origin ${repoUrl} && git clean -fd && git reset --hard HEAD && git pull origin main`;
             exec(forcePullScript, async (err, stdout, stderr) => {
                 if (err) {
@@ -103,8 +102,8 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         return;
     }
 
-    // 4. System Settings Toggles
-    const toggles = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline'];
+    // 4. System Settings Toggles (💥 antidelete add kar diya yahan 💥)
+    const toggles = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'antidelete'];
     if (toggles.includes(command)) {
         const state = args[0]?.toLowerCase() === 'on';
         global.settings[command] = state;
