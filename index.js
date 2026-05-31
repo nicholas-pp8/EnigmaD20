@@ -32,12 +32,27 @@ global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: fal
 const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
 const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217128296820869", "919339777647"];
 
-// ⚠️ Yahan owner commands ki list hai jisme 'sm' shamil hai
 const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm', 'schedule'];
 
 const app = express();
 app.get('/', (req, res) => res.send('Enigma D20 is running!'));
 app.listen(3000, () => console.log('\n[SERVER] Keep-alive server running on port 3000'));
+
+// ⏳ Uptime Formatter Function
+function formatUptime(seconds) {
+    seconds = Number(seconds);
+    const d = Math.floor(seconds / (3600 * 24));
+    const h = Math.floor(seconds % (3600 * 24) / 3600);
+    const m = Math.floor(seconds % 3600 / 60);
+    const s = Math.floor(seconds % 60);
+    
+    const dDisplay = d > 0 ? d + (d === 1 ? " day, " : " days, ") : "";
+    const hDisplay = h > 0 ? h + (h === 1 ? " hour, " : " hours, ") : "";
+    const mDisplay = m > 0 ? m + (m === 1 ? " min, " : " mins, ") : "";
+    const sDisplay = s > 0 ? s + (s === 1 ? " sec" : " secs") : "";
+    
+    return (dDisplay + hDisplay + mDisplay + sDisplay).replace(/,\s*$/, "");
+}
 
 async function startBot() {
     const { state, saveCreds } = await useMultiFileAuthState('auth_info');
@@ -134,7 +149,7 @@ async function startBot() {
                 if (speed < 0 || speed > 1000) speed = Math.floor(Math.random() * 30) + 15; 
                 const serverType = os.type() === 'Linux' ? 'Linux Engine' : os.type();
 
-                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📝 .lyrics - Get lyrics\n╰──────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
+                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📝 .lyrics - Get lyrics\n╰──────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
                 
                 await sock.sendMessage(from, { text: menuText }, { quoted: msg });
             }
@@ -143,6 +158,11 @@ async function startBot() {
                 const pSpeed = Date.now() - (msg.messageTimestamp * 1000);
                 const finalSpeed = pSpeed > 0 && pSpeed < 1000 ? pSpeed : Math.floor(Math.random() * 30) + 15;
                 await sock.sendMessage(from, { text: `*Pong!* 🏓\nServer Speed: ${finalSpeed} ms` }, { quoted: msg });
+            }
+            // ⏳ NEW RUNTIME COMMAND
+            else if (command === 'runtime') {
+                const uptimeStr = formatUptime(process.uptime());
+                await sock.sendMessage(from, { text: `⏳ *Bot is running since ${uptimeStr}*` }, { quoted: msg });
             }
             else if (ownerCommandsList.includes(command)) await handleOwnerCommands(sock, from, msg, args, command, isOwner);
             else if (command === 'play') await handlePlay(sock, from, msg, args);
