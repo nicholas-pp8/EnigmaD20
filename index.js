@@ -32,8 +32,8 @@ global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: fal
 const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
 const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217128296820869", "919339777647"];
 
-// ADDED 'sm' to the owner commands list!
-const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm'];
+// ⚠️ Yahan owner commands ki list hai jisme 'sm' shamil hai
+const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm', 'schedule'];
 
 const app = express();
 app.get('/', (req, res) => res.send('Enigma D20 is running!'));
