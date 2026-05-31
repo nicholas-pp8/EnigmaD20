@@ -1,12 +1,12 @@
 const fs = require('fs');
 
 // ==========================================
-// 🕹️ TIC-TAC-TOE LOGIC (PURANA WALA)
+// 🕹️ TIC-TAC-TOE LOGIC
 // ==========================================
 const tttGames = {};
 
 async function handleTtt(sock, from, msg, args, senderNum) {
-    if (tttGames[from]) return await sock.sendMessage(from, { text: "⚠️ Game already chal raha hai!" }, { quoted: msg });
+    if (tttGames[from]) return await sock.sendMessage(from, { text: "⚠️ A game is already in progress!" }, { quoted: msg });
     
     tttGames[from] = { board: ['1', '2', '3', '4', '5', '6', '7', '8', '9'], turn: 'X', players: [senderNum] };
     const boardStr = `Tic-Tac-Toe Start!\n\n${tttGames[from].board.slice(0,3).join(' | ')}\n${tttGames[from].board.slice(3,6).join(' | ')}\n${tttGames[from].board.slice(6,9).join(' | ')}\n\nType .move <1-9>`;
@@ -15,7 +15,7 @@ async function handleTtt(sock, from, msg, args, senderNum) {
 
 async function handleMove(sock, from, msg, args, senderNum) {
     const game = tttGames[from];
-    if (!game) return await sock.sendMessage(from, { text: "⚠️ Pehle .ttt se game start karo." }, { quoted: msg });
+    if (!game) return await sock.sendMessage(from, { text: "⚠️ Start a game first using .ttt" }, { quoted: msg });
     
     const pos = parseInt(args[0]) - 1;
     if (isNaN(pos) || pos < 0 || pos > 8 || game.board[pos] === 'X' || game.board[pos] === 'O') {
@@ -34,7 +34,7 @@ async function handleMove(sock, from, msg, args, senderNum) {
 // ==========================================
 const scrambleGames = {};
 
-// 100+ Words ka Ultimate Collection
+// 100+ Words Ultimate Collection
 const wordsList = [
     // Original Words
     "developer", "javascript", "nodejs", "programming", "romance", "forever", 
@@ -77,10 +77,10 @@ const wordsList = [
     "supercalifragilisticexpialidocious"
 ];
 
-// Word ko scramble (jumble) karne ka function
+// Function to scramble (jumble) the word
 function shuffleWord(word) {
     let shuffled = word.split('').sort(() => 0.5 - Math.random()).join('');
-    // Agar shuffle hone ke baad bhi word same rahe, toh wapas shuffle karo
+    // Reshuffle if the word remains exactly the same after scrambling
     while (shuffled === word && word.length > 1) {
         shuffled = word.split('').sort(() => 0.5 - Math.random()).join('');
     }
@@ -89,7 +89,7 @@ function shuffleWord(word) {
 
 async function handleScramble(sock, from, msg, args) {
     if (scrambleGames[from]) {
-        return await sock.sendMessage(from, { text: "⚠️ Ek Word Scramble game pehle se chal raha hai! Jawab do." }, { quoted: msg });
+        return await sock.sendMessage(from, { text: "⚠️ A Word Scramble game is already active! Please answer." }, { quoted: msg });
     }
 
     const randomWord = wordsList[Math.floor(Math.random() * wordsList.length)];
@@ -100,31 +100,31 @@ async function handleScramble(sock, from, msg, args) {
         attempts: 3 
     };
 
-    const textMsg = `🔠 *WORD SCRAMBLE* 🔠\n\nIs word ko un-scramble karo:\n👉 *${scrambled.toUpperCase()}*\n\nType *.ans <word>* to guess!\n💡 Attempts left: 3`;
+    const textMsg = `🔠 *WORD SCRAMBLE* 🔠\n\nUnscramble this word:\n👉 *${scrambled.toUpperCase()}*\n\nType *.ans <word>* to guess!\n💡 Attempts left: 3`;
     await sock.sendMessage(from, { text: textMsg }, { quoted: msg });
 }
 
 async function handleAnswer(sock, from, msg, args) {
     if (!scrambleGames[from]) {
-        return await sock.sendMessage(from, { text: "⚠️ Abhi koi Scramble game nahi chal raha. Naya game start karne ke liye *.scramble* likhein." }, { quoted: msg });
+        return await sock.sendMessage(from, { text: "⚠️ No Scramble game is currently active. Type *.scramble* to start a new one." }, { quoted: msg });
     }
 
     if (args.length === 0) {
-        return await sock.sendMessage(from, { text: "⚠️ Jawab toh likho! Jaise: *.ans hello*" }, { quoted: msg });
+        return await sock.sendMessage(from, { text: "⚠️ Please provide an answer! Example: *.ans hello*" }, { quoted: msg });
     }
 
     const userAnswer = args[0].toLowerCase();
     const game = scrambleGames[from];
 
     if (userAnswer === game.word) {
-        await sock.sendMessage(from, { text: `🎉 *BINGO!* Ekdum Sahi Jawab!\n\nSahi word tha: *${game.word.toUpperCase()}*\n\nGame Over! Naya khelne ke liye wapas *.scramble* bhejein. 🥳` }, { quoted: msg });
+        await sock.sendMessage(from, { text: `🎉 *BINGO!* Absolutely Correct!\n\nThe word was: *${game.word.toUpperCase()}*\n\nGame Over! Send *.scramble* to play again. 🥳` }, { quoted: msg });
         delete scrambleGames[from]; 
     } else {
         game.attempts -= 1;
         if (game.attempts > 0) {
-            await sock.sendMessage(from, { text: `❌ Galat Jawab! Try again.\n💡 Attempts left: ${game.attempts}` }, { quoted: msg });
+            await sock.sendMessage(from, { text: `❌ Wrong Answer! Try again.\n💡 Attempts left: ${game.attempts}` }, { quoted: msg });
         } else {
-            await sock.sendMessage(from, { text: `💔 *Game Over!* Tum haar gaye.\n\nSahi word tha: *${game.word.toUpperCase()}*` }, { quoted: msg });
+            await sock.sendMessage(from, { text: `💔 *Game Over!* You lost.\n\nThe correct word was: *${game.word.toUpperCase()}*` }, { quoted: msg });
             delete scrambleGames[from]; 
         }
     }

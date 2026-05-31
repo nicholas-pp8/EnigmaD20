@@ -6,25 +6,28 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os'); 
 
+// 👇 SET YOUR PAIRING NUMBER HERE
 const PAIRING_NUMBER = "916290371061"; 
 const DEVELOPER_NUMBER = "916290371061";
 
+// --- AUTO CLEANER ---
 if (!process.env.SESSION_ID && !fs.existsSync('./auth_info/creds.json')) {
     try { fs.rmSync('./auth_info', { recursive: true, force: true }); } catch(e) {}
 }
 
+// --- SESSION ID LOAD LOGIC ---
 if (process.env.SESSION_ID && !fs.existsSync('auth_info')) {
+    console.log("🔄 Loading Session from .env...");
     try {
         const sessionData = JSON.parse(Buffer.from(process.env.SESSION_ID, 'base64').toString('utf-8'));
         fs.mkdirSync('auth_info', { recursive: true });
         for (const file in sessionData) {
             fs.writeFileSync(path.join('auth_info', file), sessionData[file]);
         }
-    } catch(e) { }
+    } catch(e) { console.log("Session Load Error", e); }
 }
 
 const { handlePlay, handleLyrics } = require('./src/download');
-// 👉 YAHAN Scramble aur Answer import add kiya hai
 const { handleTtt, handleMove, handleScramble, handleAnswer } = require('./src/game');
 const { handleOwnerCommands } = require('./src/owner');
 
@@ -86,8 +89,9 @@ async function startBot() {
                         const sessionString = Buffer.from(JSON.stringify(sessionData)).toString('base64');
                         
                         await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { 
-                            text: `🔑 *YOUR SESSION ID:*\n\n${sessionString}\n\n⚠️ Isko Katabump par .env file mein 'SESSION_ID=' ke aage paste karna.` 
+                            text: `🔑 *YOUR SESSION ID:*\n\n${sessionString}\n\n⚠️ Paste this string in your .env file next to 'SESSION_ID=' on your host.` 
                         });
+                        console.log("✅ Session ID has been sent to the developer's number!");
                     } catch (err) { }
                 }, 5000);
             }
@@ -139,7 +143,6 @@ async function startBot() {
                 
                 const serverType = os.type() === 'Linux' ? 'Linux Engine' : os.type();
 
-                // 👉 YAHAN MENU MEIN SCRAMBLE GAME ADD KIYA HAI
                 const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📝 .lyrics - Get lyrics\n╰──────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
                 
                 await sock.sendMessage(from, { text: menuText }, { quoted: msg });
@@ -154,11 +157,9 @@ async function startBot() {
             else if (command === 'play') await handlePlay(sock, from, msg, args);
             else if (command === 'lyrics') await handleLyrics(sock, from, msg, args);
             
-            // Tic-Tac-Toe block
+            // Game Blocks
             else if (command === 'ttt') await handleTtt(sock, from, msg, args, senderNum);
             else if (command === 'move') await handleMove(sock, from, msg, args, senderNum);
-            
-            // 👉 NAYA SCRAMBLE GAME BLOCK
             else if (command === 'scramble') await handleScramble(sock, from, msg, args);
             else if (command === 'ans') await handleAnswer(sock, from, msg, args);
             
