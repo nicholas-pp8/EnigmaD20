@@ -8,29 +8,51 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         return await sock.sendMessage(from, { text: "❌ Only the Owner can use this command!" }, { quoted: msg });
     }
 
-    // 2. Schedule Message (.sm)
+    // 2. Schedule Message (.sm) - UPDATED TO 12-HOUR & DD/MM/YYYY FORMAT
     if (command === 'sm' || command === 'schedule') {
-        if (args.length < 4) {
+        if (args.length < 5) {
             return await sock.sendMessage(from, { 
-                text: "⚠️ *Syntax Error!*\n\nUse format:\n*.sm <number> <YYYY-MM-DD> <HH:MM> <message>*\n\nExample:\n.sm 916290371061 2026-06-01 14:30 Hello bhai!" 
+                text: "⚠️ *Syntax Error!*\n\nUse format:\n*.sm <number> <DD/MM/YYYY> <hh:mm> <AM/PM> <message>*\n\nExample:\n.sm 916290371061 01/06/2026 02:30 PM Hello bhai!" 
             }, { quoted: msg });
         }
 
         const targetNumber = args[0];
         const datePart = args[1]; 
         const timePart = args[2]; 
-        const messageBody = args.slice(3).join(' ');
+        const ampm = args[3].toUpperCase();
+        const messageBody = args.slice(4).join(' ');
 
         const targetJid = targetNumber.includes('@s.whatsapp.net') ? targetNumber : `${targetNumber}@s.whatsapp.net`;
 
+        if (!datePart.includes('/') || !timePart.includes(':') || !['AM', 'PM'].includes(ampm)) {
+            return await sock.sendMessage(from, { 
+                text: "❌ *Invalid Format!*\nPlease check your date or time format.\n\nExample: .sm 916290371061 01/06/2026 02:30 PM Hello!" 
+            }, { quoted: msg });
+        }
+
+        // Parsing Date (DD/MM/YYYY)
+        let [day, month, year] = datePart.split('/');
+        day = day.padStart(2, '0');
+        month = month.padStart(2, '0');
+
+        // Parsing Time (12-hour to 24-hour conversion)
+        let [hour, minute] = timePart.split(':');
+        hour = parseInt(hour, 10);
+        minute = minute.padStart(2, '0');
+
+        if (ampm === 'PM' && hour !== 12) hour += 12;
+        if (ampm === 'AM' && hour === 12) hour = 0;
+
+        const hourStr = hour.toString().padStart(2, '0');
+        
         // Locking strictly to IST (+05:30)
-        const targetDateStr = `${datePart}T${timePart}:00+05:30`;
+        const targetDateStr = `${year}-${month}-${day}T${hourStr}:${minute}:00+05:30`;
         const targetTimeMs = new Date(targetDateStr).getTime();
         const currentTimeMs = Date.now();
 
         if (isNaN(targetTimeMs)) {
             return await sock.sendMessage(from, { 
-                text: "❌ *Invalid date or time format!*\nPlease use exactly:\nDate: *YYYY-MM-DD* (e.g., 2026-05-31)\nTime: *HH:MM* in 24-hour format (e.g., 14:30)" 
+                text: "❌ *Invalid date or time!* Make sure you use a valid calendar date." 
             }, { quoted: msg });
         }
 
@@ -43,7 +65,7 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         }
 
         await sock.sendMessage(from, { 
-            text: `✅ *Message Scheduled Successfully!*\n\n📅 *Date:* ${datePart}\n⏰ *Time:* ${timePart} (IST)\n👤 *To:* ${targetNumber}\n💬 *Message:* ${messageBody}\n\n_(⚠️ Note: If the bot restarts or goes offline before this time, the scheduled message will be lost.)_` 
+            text: `✅ *Message Scheduled Successfully!*\n\n📅 *Date:* ${datePart}\n⏰ *Time:* ${timePart} ${ampm} (IST)\n👤 *To:* ${targetNumber}\n💬 *Message:* ${messageBody}\n\n_(⚠️ Note: If the bot restarts or goes offline before this time, the scheduled message will be lost.)_` 
         }, { quoted: msg });
 
         setTimeout(async () => {
