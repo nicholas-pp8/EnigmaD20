@@ -1,5 +1,6 @@
 const { exec } = require('child_process');
 const fs = require('fs');
+const { downloadContentFromMessage } = require('@whiskeysockets/baileys'); // 👈 ADDED for View Once Download
 
 async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
     
@@ -72,7 +73,53 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         return;
     }
 
-    // 3. THE BULLETPROOF AUTO-UPDATE LOGIC
+    // 3. 💥 VIEW ONCE BYPASS LOGIC (.vv) 💥
+    if (command === 'vv') {
+        const quoted = msg.message.extendedTextMessage?.contextInfo?.quotedMessage;
+        
+        if (!quoted) {
+            return await sock.sendMessage(from, { text: "⚠️ Please *reply* to a View Once message with .vv to bypass it!" }, { quoted: msg });
+        }
+
+        // Check if the replied message is actually a View Once message
+        const viewOnce = quoted.viewOnceMessage || quoted.viewOnceMessageV2 || quoted.viewOnceMessageV2Extension;
+
+        if (!viewOnce) {
+            return await sock.sendMessage(from, { text: "❌ The message you replied to is NOT a View Once message!" }, { quoted: msg });
+        }
+
+        await sock.sendMessage(from, { text: "🔓 *Decrypting View Once Message...*" }, { quoted: msg });
+
+        try {
+            const mediaMessage = viewOnce.message;
+            const mediaType = Object.keys(mediaMessage)[0]; // imageMessage or videoMessage
+            const mediaContent = mediaMessage[mediaType];
+
+            // Downloading the media stream
+            const stream = await downloadContentFromMessage(mediaContent, mediaType.replace('Message', ''));
+            let buffer = Buffer.from([]);
+            for await (const chunk of stream) {
+                buffer = Buffer.concat([buffer, chunk]);
+            }
+
+            const captionText = `🔓 *View Once Bypassed*\n\n` + (mediaContent.caption ? `💬 *Caption:* ${mediaContent.caption}` : '');
+
+            // Resending as a normal message
+            if (mediaType === 'imageMessage') {
+                await sock.sendMessage(from, { image: buffer, caption: captionText }, { quoted: msg });
+            } else if (mediaType === 'videoMessage') {
+                await sock.sendMessage(from, { video: buffer, caption: captionText, mimetype: 'video/mp4' }, { quoted: msg });
+            } else if (mediaType === 'audioMessage') {
+                await sock.sendMessage(from, { audio: buffer, mimetype: 'audio/mp4', ptt: false }, { quoted: msg });
+            }
+            return;
+        } catch (err) {
+            console.error("View Once Bypass Error:", err);
+            return await sock.sendMessage(from, { text: "❌ Failed to download the View Once media." }, { quoted: msg });
+        }
+    }
+
+    // 4. THE BULLETPROOF AUTO-UPDATE LOGIC
     if (command === 'update') {
         await sock.sendMessage(from, { text: "🔄 System checking Git repository...\n⚠️ Using Force-Sync to ignore conflicts." }, { quoted: msg });
         
@@ -102,7 +149,7 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         return;
     }
 
-    // 4. System Settings Toggles (💥 antidelete add kar diya yahan 💥)
+    // 5. System Settings Toggles 
     const toggles = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'antidelete'];
     if (toggles.includes(command)) {
         const state = args[0]?.toLowerCase() === 'on';
@@ -115,7 +162,7 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         return;
     }
 
-    // 5. Delete Bot's Message (.del)
+    // 6. Delete Bot's Message (.del)
     if (command === 'del' || command === 'delete') {
         if (!msg.message.extendedTextMessage?.contextInfo?.stanzaId) {
             return await sock.sendMessage(from, { text: "⚠️ Reply to a message sent by the bot to delete it." }, { quoted: msg });
