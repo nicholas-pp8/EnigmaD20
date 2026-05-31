@@ -8,7 +8,56 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         return await sock.sendMessage(from, { text: "❌ Only the Owner can use this command!" }, { quoted: msg });
     }
 
-    // 2. The Smart Auto-Update Logic
+    // 2. Schedule Message (.sm)
+    if (command === 'sm' || command === 'schedule') {
+        if (args.length < 4) {
+            return await sock.sendMessage(from, { 
+                text: "⚠️ *Syntax Error!*\n\nUse format:\n*.sm <number> <YYYY-MM-DD> <HH:MM> <message>*\n\nExample:\n.sm 916290371061 2026-06-01 14:30 Hello bhai!" 
+            }, { quoted: msg });
+        }
+
+        const targetNumber = args[0];
+        const datePart = args[1]; 
+        const timePart = args[2]; 
+        const messageBody = args.slice(3).join(' ');
+
+        const targetJid = targetNumber.includes('@s.whatsapp.net') ? targetNumber : `${targetNumber}@s.whatsapp.net`;
+
+        // Locking strictly to IST (+05:30)
+        const targetDateStr = `${datePart}T${timePart}:00+05:30`;
+        const targetTimeMs = new Date(targetDateStr).getTime();
+        const currentTimeMs = Date.now();
+
+        if (isNaN(targetTimeMs)) {
+            return await sock.sendMessage(from, { 
+                text: "❌ *Invalid date or time format!*\nPlease use exactly:\nDate: *YYYY-MM-DD* (e.g., 2026-05-31)\nTime: *HH:MM* in 24-hour format (e.g., 14:30)" 
+            }, { quoted: msg });
+        }
+
+        const delay = targetTimeMs - currentTimeMs;
+
+        if (delay <= 0) {
+            return await sock.sendMessage(from, { 
+                text: "❌ You cannot schedule a message for the past! Please provide a future time." 
+            }, { quoted: msg });
+        }
+
+        await sock.sendMessage(from, { 
+            text: `✅ *Message Scheduled Successfully!*\n\n📅 *Date:* ${datePart}\n⏰ *Time:* ${timePart} (IST)\n👤 *To:* ${targetNumber}\n💬 *Message:* ${messageBody}\n\n_(⚠️ Note: If the bot restarts or goes offline before this time, the scheduled message will be lost.)_` 
+        }, { quoted: msg });
+
+        setTimeout(async () => {
+            try {
+                await sock.sendMessage(targetJid, { text: messageBody });
+                await sock.sendMessage(from, { text: `✅ Your scheduled message to ${targetNumber} was just delivered successfully!` });
+            } catch (err) {
+                console.error("Failed to send scheduled message:", err);
+            }
+        }, delay);
+        return;
+    }
+
+    // 3. The Smart Auto-Update Logic
     if (command === 'update') {
         await sock.sendMessage(from, { text: "🔄 System checking Git repository..." }, { quoted: msg });
         
@@ -42,13 +91,12 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         return;
     }
 
-    // 3. System Settings Toggles (FIXED: Added immediate presence update)
+    // 4. System Settings Toggles
     const toggles = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline'];
     if (toggles.includes(command)) {
         const state = args[0]?.toLowerCase() === 'on';
         global.settings[command] = state;
         
-        // FIX: If alwaysonline is toggled, apply it to WhatsApp immediately
         if (command === 'alwaysonline') {
             await sock.sendPresenceUpdate(state ? 'available' : 'unavailable');
         }
@@ -57,7 +105,7 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
         return;
     }
 
-    // 4. Delete Bot's Message (.del)
+    // 5. Delete Bot's Message (.del)
     if (command === 'del' || command === 'delete') {
         if (!msg.message.extendedTextMessage?.contextInfo?.stanzaId) {
             return await sock.sendMessage(from, { text: "⚠️ Reply to a message sent by the bot to delete it." }, { quoted: msg });

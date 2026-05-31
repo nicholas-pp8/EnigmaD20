@@ -32,7 +32,8 @@ global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: fal
 const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
 const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217128296820869", "919339777647"];
 
-const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update'];
+// ADDED 'sm' to the owner commands list!
+const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm'];
 
 const app = express();
 app.get('/', (req, res) => res.send('Enigma D20 is running!'));
@@ -89,7 +90,6 @@ async function startBot() {
                         await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { 
                             text: `🔑 *YOUR SESSION ID:*\n\n${sessionString}\n\n⚠️ Paste this string in your .env file next to 'SESSION_ID=' on your host.` 
                         });
-                        console.log("✅ Session ID has been sent to the developer's number!");
                     } catch (err) { }
                 }, 5000);
             }
@@ -101,17 +101,13 @@ async function startBot() {
             const msg = chatUpdate.messages[0];
             if (!msg.message) return;
 
-            // Multi-Device hidden tags cleaner
-            if (msg.key.participant) {
-                msg.key.participant = msg.key.participant.split(':')[0] + '@s.whatsapp.net';
-            }
-            if (msg.message.extendedTextMessage && msg.message.extendedTextMessage.contextInfo && msg.message.extendedTextMessage.contextInfo.participant) {
+            if (msg.key.participant) msg.key.participant = msg.key.participant.split(':')[0] + '@s.whatsapp.net';
+            if (msg.message.extendedTextMessage?.contextInfo?.participant) {
                 msg.message.extendedTextMessage.contextInfo.participant = msg.message.extendedTextMessage.contextInfo.participant.split(':')[0] + '@s.whatsapp.net';
             }
 
             const from = msg.key.remoteJid;
             const isFromMe = msg.key.fromMe;
-            
             const senderNum = (isFromMe ? sock.user.id : (msg.key.participant || msg.key.remoteJid)).split('@')[0].split(':')[0];
             const body = msg.message.conversation || msg.message.extendedTextMessage?.text || msg.message.imageMessage?.caption || msg.message.videoMessage?.caption || '';
             const isOwner = isFromMe || AUTHORIZED_NUMBERS.includes(senderNum); 
@@ -123,7 +119,6 @@ async function startBot() {
             }
 
             if (global.settings.autoread && from !== 'status@broadcast') await sock.readMessages([msg.key]);
-            
             if (!body.startsWith('.')) return;
             if (global.settings.autotyping) await sock.sendPresenceUpdate('composing', from);
 
@@ -135,13 +130,11 @@ async function startBot() {
                 const currentDate = dateObj.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' });
                 const currentTime = dateObj.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
                 const ramUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
-                
                 let speed = Date.now() - (msg.messageTimestamp * 1000);
                 if (speed < 0 || speed > 1000) speed = Math.floor(Math.random() * 30) + 15; 
-                
                 const serverType = os.type() === 'Linux' ? 'Linux Engine' : os.type();
 
-                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📝 .lyrics - Get lyrics\n╰──────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
+                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📝 .lyrics - Get lyrics\n╰──────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
                 
                 await sock.sendMessage(from, { text: menuText }, { quoted: msg });
             }
@@ -154,7 +147,6 @@ async function startBot() {
             else if (ownerCommandsList.includes(command)) await handleOwnerCommands(sock, from, msg, args, command, isOwner);
             else if (command === 'play') await handlePlay(sock, from, msg, args);
             else if (command === 'lyrics') await handleLyrics(sock, from, msg, args);
-            
             else if (command === 'ttt') await handleTtt(sock, from, msg, args, senderNum);
             else if (command === 'move') await handleMove(sock, from, msg, args, senderNum);
             else if (command === 'scramble') await handleScramble(sock, from, msg, args);
