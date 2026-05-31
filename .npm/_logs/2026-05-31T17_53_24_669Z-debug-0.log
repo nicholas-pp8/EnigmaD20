@@ -1,0 +1,559 @@
+0 verbose cli /data/data/com.termux/files/usr/bin/node /data/data/com.termux/files/usr/bin/npm
+1 info using npm@11.16.0
+2 info using node@v26.2.0
+3 silly config load:file:/data/data/com.termux/files/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/data/data/com.termux/files/home/.npmrc
+5 silly config load:file:/data/data/com.termux/files/usr/etc/npmrc
+6 verbose title npm install @ffmpeg-installer/ffmpeg
+7 verbose argv "install" "@ffmpeg-installer/ffmpeg"
+8 verbose logfile logs-max:10 dir:/data/data/com.termux/files/home/.npm/_logs/2026-05-31T17_53_24_669Z-
+9 verbose logfile /data/data/com.termux/files/home/.npm/_logs/2026-05-31T17_53_24_669Z-debug-0.log
+10 silly logfile start cleaning logs, removing 1 files
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:1082130432 maxSize:270532608 maxEntrySize:135266304
+13 silly idealTree buildDeps
+14 silly fetch manifest @ffmpeg-installer/ffmpeg@*
+15 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2fffmpeg cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/@ffmpeg-installer%2fffmpeg 1568ms (cache miss)
+17 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2fffmpeg set size:undefined disposed:false
+18 silly placeDep ROOT @ffmpeg-installer/ffmpeg@1.1.0 OK for: home@1.0.0 want: *
+19 silly fetch manifest @ffmpeg-installer/darwin-arm64@4.1.5
+20 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2fdarwin-arm64 cache-miss
+21 silly fetch manifest @ffmpeg-installer/darwin-x64@4.1.0
+22 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2fdarwin-x64 cache-miss
+23 silly fetch manifest @ffmpeg-installer/linux-arm@4.1.3
+24 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2flinux-arm cache-miss
+25 silly fetch manifest @ffmpeg-installer/linux-arm64@4.1.4
+26 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2flinux-arm64 cache-miss
+27 silly fetch manifest @ffmpeg-installer/linux-ia32@4.1.0
+28 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2flinux-ia32 cache-miss
+29 silly fetch manifest @ffmpeg-installer/linux-x64@4.1.0
+30 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2flinux-x64 cache-miss
+31 silly fetch manifest @ffmpeg-installer/win32-ia32@4.1.0
+32 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2fwin32-ia32 cache-miss
+33 http fetch GET 200 https://registry.npmjs.org/@ffmpeg-installer%2fdarwin-arm64 1089ms (cache miss)
+34 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2fdarwin-arm64 set size:undefined disposed:false
+35 silly fetch manifest @ffmpeg-installer/win32-x64@4.1.0
+36 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2fwin32-x64 cache-miss
+37 http fetch GET 200 https://registry.npmjs.org/@ffmpeg-installer%2flinux-arm 1100ms (cache miss)
+38 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2flinux-arm set size:undefined disposed:false
+39 http fetch GET 200 https://registry.npmjs.org/@ffmpeg-installer%2fdarwin-x64 1127ms (cache miss)
+40 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2fdarwin-x64 set size:undefined disposed:false
+41 http fetch GET 200 https://registry.npmjs.org/@ffmpeg-installer%2flinux-arm64 1132ms (cache miss)
+42 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2flinux-arm64 set size:undefined disposed:false
+43 http fetch GET 200 https://registry.npmjs.org/@ffmpeg-installer%2fwin32-ia32 1133ms (cache miss)
+44 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2fwin32-ia32 set size:undefined disposed:false
+45 http fetch GET 200 https://registry.npmjs.org/@ffmpeg-installer%2flinux-x64 1143ms (cache miss)
+46 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2flinux-x64 set size:undefined disposed:false
+47 http fetch GET 200 https://registry.npmjs.org/@ffmpeg-installer%2flinux-ia32 1152ms (cache miss)
+48 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2flinux-ia32 set size:undefined disposed:false
+49 http fetch GET 200 https://registry.npmjs.org/@ffmpeg-installer%2fwin32-x64 835ms (cache miss)
+50 silly packumentCache full:https://registry.npmjs.org/@ffmpeg-installer%2fwin32-x64 set size:undefined disposed:false
+51 silly placeDep ROOT @ffmpeg-installer/darwin-arm64@4.1.5 OK for: @ffmpeg-installer/ffmpeg@1.1.0 want: 4.1.5
+52 silly placeDep ROOT @ffmpeg-installer/darwin-x64@4.1.0 OK for: @ffmpeg-installer/ffmpeg@1.1.0 want: 4.1.0
+53 silly placeDep ROOT @ffmpeg-installer/linux-arm@4.1.3 OK for: @ffmpeg-installer/ffmpeg@1.1.0 want: 4.1.3
+54 silly placeDep ROOT @ffmpeg-installer/linux-arm64@4.1.4 OK for: @ffmpeg-installer/ffmpeg@1.1.0 want: 4.1.4
+55 silly placeDep ROOT @ffmpeg-installer/linux-ia32@4.1.0 OK for: @ffmpeg-installer/ffmpeg@1.1.0 want: 4.1.0
+56 silly placeDep ROOT @ffmpeg-installer/linux-x64@4.1.0 OK for: @ffmpeg-installer/ffmpeg@1.1.0 want: 4.1.0
+57 silly placeDep ROOT @ffmpeg-installer/win32-ia32@4.1.0 OK for: @ffmpeg-installer/ffmpeg@1.1.0 want: 4.1.0
+58 silly placeDep ROOT @ffmpeg-installer/win32-x64@4.1.0 OK for: @ffmpeg-installer/ffmpeg@1.1.0 want: 4.1.0
+59 silly reify moves {}
+60 silly audit bulk request {
+60 silly audit   '@babel/helper-string-parser': [ '7.29.7' ],
+60 silly audit   '@babel/helper-validator-identifier': [ '7.29.7' ],
+60 silly audit   '@babel/parser': [ '7.29.7' ],
+60 silly audit   '@babel/types': [ '7.29.7' ],
+60 silly audit   '@borewit/text-codec': [ '0.2.2' ],
+60 silly audit   '@cacheable/memory': [ '2.0.9' ],
+60 silly audit   '@cacheable/node-cache': [ '1.7.6' ],
+60 silly audit   '@cacheable/utils': [ '2.4.1' ],
+60 silly audit   '@cspotcode/source-map-support': [ '0.8.1' ],
+60 silly audit   '@jridgewell/trace-mapping': [ '0.3.9', '0.3.31' ],
+60 silly audit   '@emnapi/runtime': [ '1.10.0' ],
+60 silly audit   '@esbuild/aix-ppc64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/android-arm': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/android-arm64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/android-x64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/darwin-arm64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/darwin-x64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/freebsd-arm64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/freebsd-x64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/linux-arm': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/linux-arm64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/linux-ia32': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/linux-loong64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/linux-mips64el': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/linux-ppc64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/linux-riscv64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/linux-s390x': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/linux-x64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/netbsd-arm64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/netbsd-x64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/openbsd-arm64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/openbsd-x64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/openharmony-arm64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/sunos-x64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/win32-arm64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/win32-ia32': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@esbuild/win32-x64': [ '0.28.0', '0.27.7' ],
+60 silly audit   '@hapi/boom': [ '9.1.4' ],
+60 silly audit   '@hapi/hoek': [ '9.3.0' ],
+60 silly audit   '@img/colour': [ '1.1.0' ],
+60 silly audit   '@img/sharp-darwin-arm64': [ '0.34.5' ],
+60 silly audit   '@img/sharp-darwin-x64': [ '0.34.5' ],
+60 silly audit   '@img/sharp-libvips-darwin-arm64': [ '1.2.4' ],
+60 silly audit   '@img/sharp-libvips-darwin-x64': [ '1.2.4' ],
+60 silly audit   '@img/sharp-libvips-linux-arm': [ '1.2.4' ],
+60 silly audit   '@img/sharp-libvips-linux-arm64': [ '1.2.4' ],
+60 silly audit   '@img/sharp-libvips-linux-ppc64': [ '1.2.4' ],
+60 silly audit   '@img/sharp-libvips-linux-riscv64': [ '1.2.4' ],
+60 silly audit   '@img/sharp-libvips-linux-s390x': [ '1.2.4' ],
+60 silly audit   '@img/sharp-libvips-linux-x64': [ '1.2.4' ],
+60 silly audit   '@img/sharp-libvips-linuxmusl-arm64': [ '1.2.4' ],
+60 silly audit   '@img/sharp-libvips-linuxmusl-x64': [ '1.2.4' ],
+60 silly audit   '@img/sharp-linux-arm': [ '0.34.5' ],
+60 silly audit   '@img/sharp-linux-arm64': [ '0.34.5' ],
+60 silly audit   '@img/sharp-linux-ppc64': [ '0.34.5' ],
+60 silly audit   '@img/sharp-linux-riscv64': [ '0.34.5' ],
+60 silly audit   '@img/sharp-linux-s390x': [ '0.34.5' ],
+60 silly audit   '@img/sharp-linux-x64': [ '0.34.5' ],
+60 silly audit   '@img/sharp-linuxmusl-arm64': [ '0.34.5' ],
+60 silly audit   '@img/sharp-linuxmusl-x64': [ '0.34.5' ],
+60 silly audit   '@img/sharp-wasm32': [ '0.34.5' ],
+60 silly audit   '@img/sharp-win32-arm64': [ '0.34.5' ],
+60 silly audit   '@img/sharp-win32-ia32': [ '0.34.5' ],
+60 silly audit   '@img/sharp-win32-x64': [ '0.34.5' ],
+60 silly audit   '@jridgewell/gen-mapping': [ '0.3.13' ],
+60 silly audit   '@jridgewell/resolve-uri': [ '3.1.2' ],
+60 silly audit   '@jridgewell/source-map': [ '0.3.11' ],
+60 silly audit   '@jridgewell/sourcemap-codec': [ '1.5.5' ],
+60 silly audit   '@jsdoc/salty': [ '0.2.12' ],
+60 silly audit   '@jsep-plugin/assignment': [ '1.3.0' ],
+60 silly audit   '@jsep-plugin/regex': [ '1.0.4' ],
+60 silly audit   '@keyv/bigmap': [ '1.3.1' ],
+60 silly audit   '@keyv/serialize': [ '1.1.1' ],
+60 silly audit   '@pinojs/redact': [ '0.4.0' ],
+60 silly audit   '@protobufjs/aspromise': [ '1.1.2' ],
+60 silly audit   '@protobufjs/base64': [ '1.1.2' ],
+60 silly audit   '@protobufjs/codegen': [ '2.0.5' ],
+60 silly audit   '@protobufjs/eventemitter': [ '1.1.1' ],
+60 silly audit   '@protobufjs/fetch': [ '1.1.1' ],
+60 silly audit   '@protobufjs/float': [ '1.0.2' ],
+60 silly audit   '@protobufjs/inquire': [ '1.1.2' ],
+60 silly audit   '@protobufjs/path': [ '1.1.2' ],
+60 silly audit   '@protobufjs/pool': [ '1.1.0' ],
+60 silly audit   '@protobufjs/utf8': [ '1.1.1' ],
+60 silly audit   '@rollup/rollup-android-arm-eabi': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-android-arm64': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-darwin-arm64': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-darwin-x64': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-freebsd-arm64': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-freebsd-x64': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-arm-gnueabihf': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-arm-musleabihf': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-arm64-gnu': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-arm64-musl': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-loong64-gnu': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-loong64-musl': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-ppc64-gnu': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-ppc64-musl': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-riscv64-gnu': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-riscv64-musl': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-s390x-gnu': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-x64-gnu': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-linux-x64-musl': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-openbsd-x64': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-openharmony-arm64': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-win32-arm64-msvc': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-win32-ia32-msvc': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-win32-x64-gnu': [ '4.60.4' ],
+60 silly audit   '@rollup/rollup-win32-x64-msvc': [ '4.60.4' ],
+60 silly audit   '@tokenizer/inflate': [ '0.4.1' ],
+60 silly audit   '@tokenizer/token': [ '0.3.0' ],
+60 silly audit   '@tsconfig/node10': [ '1.0.12' ],
+60 silly audit   '@tsconfig/node12': [ '1.0.11' ],
+60 silly audit   '@tsconfig/node14': [ '1.0.3' ],
+60 silly audit   '@tsconfig/node16': [ '1.0.4' ],
+60 silly audit   '@types/estree': [ '1.0.8' ],
+60 silly audit   '@types/linkify-it': [ '5.0.0' ],
+60 silly audit   '@types/markdown-it': [ '14.1.2' ],
+60 silly audit   '@types/mdurl': [ '2.0.0' ],
+60 silly audit   '@types/node': [ '25.9.1' ],
+60 silly audit   '@whiskeysockets/baileys': [ '7.0.0-rc13' ],
+60 silly audit   pino: [ '9.14.0', '10.3.1' ],
+60 silly audit   'pino-abstract-transport': [ '2.0.0', '3.0.0' ],
+60 silly audit   'thread-stream': [ '3.1.0', '4.2.0' ],
+60 silly audit   'ab-downloader': [ '1.0.2' ],
+60 silly audit   accepts: [ '2.0.0' ],
+60 silly audit   acorn: [ '8.16.0' ],
+60 silly audit   'acorn-walk': [ '8.3.5' ],
+60 silly audit   'agent-base': [ '6.0.2' ],
+60 silly audit   'ansi-regex': [ '3.0.1' ],
+60 silly audit   'any-promise': [ '1.3.0' ],
+60 silly audit   arg: [ '4.1.3' ],
+60 silly audit   argparse: [ '2.0.1' ],
+60 silly audit   async: [ '0.2.10' ],
+60 silly audit   'async-mutex': [ '0.5.0' ],
+60 silly audit   'async.parallellimit': [ '0.5.2' ],
+60 silly audit   'async.util.eachoflimit': [ '0.5.2' ],
+60 silly audit   'async.util.isarray': [ '0.5.2' ],
+60 silly audit   'async.util.isarraylike': [ '0.5.2' ],
+60 silly audit   'async.util.keyiterator': [ '0.5.2' ],
+60 silly audit   'async.util.keys': [ '0.5.2' ],
+60 silly audit   'async.util.noop': [ '0.5.2' ],
+60 silly audit   'async.util.once': [ '0.5.2' ],
+60 silly audit   'async.util.onlyonce': [ '0.5.2' ],
+60 silly audit   'async.util.parallel': [ '0.5.2' ],
+60 silly audit   'async.util.restparam': [ '0.5.2' ],
+60 silly audit   asynckit: [ '0.4.0' ],
+60 silly audit   'atomic-sleep': [ '1.0.0' ],
+60 silly audit   axios: [ '1.16.1' ],
+60 silly audit   'balanced-match': [ '1.0.2' ],
+60 silly audit   bluebird: [ '3.7.2' ],
+60 silly audit   'body-parser': [ '2.2.2' ],
+60 silly audit   'iconv-lite': [ '0.7.2', '0.6.3' ],
+60 silly audit   boolbase: [ '1.0.0' ],
+60 silly audit   boolstring: [ '2.0.1' ],
+60 silly audit   'brace-expansion': [ '1.1.15' ],
+60 silly audit   'btch-downloader': [ '6.0.32' ],
+60 silly audit   'btch-http': [ '2.0.3' ],
+60 silly audit   'buffer-from': [ '1.1.2' ],
+60 silly audit   'bundle-require': [ '5.1.0' ],
+60 silly audit   bytes: [ '3.1.2' ],
+60 silly audit   cac: [ '6.7.14' ],
+60 silly audit   cacheable: [ '2.3.5' ],
+60 silly audit   'call-bind-apply-helpers': [ '1.0.2' ],
+60 silly audit   'call-bound': [ '1.0.4' ],
+60 silly audit   'camel-case': [ '4.1.2' ],
+60 silly audit   catharsis: [ '0.9.0' ],
+60 silly audit   cheerio: [ '1.2.0' ],
+60 silly audit   'cheerio-select': [ '2.1.0' ],
+60 silly audit   'dom-serializer': [ '2.0.0', '0.2.2' ],
+60 silly audit   domelementtype: [ '2.3.0', '1.3.1' ],
+60 silly audit   domhandler: [ '5.0.3', '2.4.2' ],
+60 silly audit   domutils: [ '3.2.2', '1.7.0' ],
+60 silly audit   entities: [ '4.5.0', '7.0.1', '2.2.0', '1.1.2', '6.0.1' ],
+60 silly audit   htmlparser2: [ '10.1.0', '3.10.1' ],
+60 silly audit   chokidar: [ '4.0.3' ],
+60 silly audit   'clean-css': [ '5.3.3' ],
+60 silly audit   'source-map': [ '0.6.1', '0.7.6' ],
+60 silly audit   'clean-jsdoc-theme': [ '4.3.2' ],
+60 silly audit   'combined-stream': [ '1.0.8' ],
+60 silly audit   commander: [ '10.0.1', '9.5.0', '4.1.1', '2.20.3' ],
+60 silly audit   'concat-map': [ '0.0.1' ],
+60 silly audit   confbox: [ '0.1.8' ],
+60 silly audit   consola: [ '3.4.2' ],
+60 silly audit   'content-disposition': [ '1.1.0' ],
+60 silly audit   'content-type': [ '1.0.5', '2.0.0' ],
+60 silly audit   cookie: [ '0.7.2' ],
+60 silly audit   'cookie-signature': [ '1.2.2' ],
+60 silly audit   'create-require': [ '1.1.1' ],
+60 silly audit   'css-select': [ '5.2.2' ],
+60 silly audit   'css-what': [ '6.2.2' ],
+60 silly audit   'curve25519-js': [ '0.0.4' ],
+60 silly audit   dasu: [ '0.4.3' ],
+60 silly audit   debug: [ '4.4.3' ],
+60 silly audit   'delayed-stream': [ '1.0.0' ],
+60 silly audit   depd: [ '2.0.0' ],
+60 silly audit   'detect-libc': [ '2.1.2' ],
+60 silly audit   diff: [ '4.0.4' ],
+60 silly audit   docdash: [ '2.0.2' ],
+60 silly audit   'dot-case': [ '3.0.4' ],
+60 silly audit   dotenv: [ '17.4.2' ],
+60 silly audit   'dunder-proto': [ '1.0.1' ],
+60 silly audit   'ee-first': [ '1.1.1' ],
+60 silly audit   encodeurl: [ '2.0.0' ],
+60 silly audit   encoding: [ '0.1.13' ],
+60 silly audit   'encoding-sniffer': [ '0.2.1' ],
+60 silly audit   'es-define-property': [ '1.0.1' ],
+60 silly audit   'es-errors': [ '1.3.0' ],
+60 silly audit   'es-object-atoms': [ '1.1.2' ],
+60 silly audit   'es-set-tostringtag': [ '2.1.0' ],
+60 silly audit   esbuild: [ '0.28.0', '0.27.7' ],
+60 silly audit   'escape-html': [ '1.0.3' ],
+60 silly audit   'escape-string-regexp': [ '2.0.0' ],
+60 silly audit   etag: [ '1.8.1' ],
+60 silly audit   eventemitter3: [ '5.0.4' ],
+60 silly audit   express: [ '5.2.1' ],
+60 silly audit   fdir: [ '6.5.0' ],
+60 silly audit   'file-type': [ '21.3.4' ],
+60 silly audit   finalhandler: [ '2.1.1' ],
+60 silly audit   'fix-dts-default-cjs-exports': [ '1.0.1' ],
+60 silly audit   'fluent-ffmpeg': [ '2.1.3' ],
+60 silly audit   'follow-redirects': [ '1.16.0' ],
+60 silly audit   'form-data': [ '4.0.5' ],
+60 silly audit   'mime-db': [ '1.52.0', '1.54.0' ],
+60 silly audit   'mime-types': [ '2.1.35', '3.0.2' ],
+60 silly audit   forwarded: [ '0.2.0' ],
+60 silly audit   fresh: [ '2.0.0' ],
+60 silly audit   'fs-extra': [ '10.1.0' ],
+60 silly audit   fsevents: [ '2.3.3' ],
+60 silly audit   'function-bind': [ '1.1.2' ],
+60 silly audit   'get-intrinsic': [ '1.3.0' ],
+60 silly audit   'get-proto': [ '1.0.1' ],
+60 silly audit   gopd: [ '1.2.0' ],
+60 silly audit   'graceful-fs': [ '4.2.11' ],
+60 silly audit   'has-symbols': [ '1.1.0' ],
+60 silly audit   'has-tostringtag': [ '1.0.2' ],
+60 silly audit   hashery: [ '1.5.1' ],
+60 silly audit   hasown: [ '2.0.4' ],
+60 silly audit   he: [ '1.2.0' ],
+60 silly audit   hookified: [ '1.15.1', '2.2.0' ],
+60 silly audit   'html-minifier-terser': [ '7.2.0' ],
+60 silly audit   'html-to-text': [ '5.1.1' ],
+60 silly audit   'http-errors': [ '2.0.1' ],
+60 silly audit   'https-proxy-agent': [ '5.0.1' ],
+60 silly audit   'human-time': [ '0.0.2' ],
+60 silly audit   ieee754: [ '1.2.1' ],
+60 silly audit   inherits: [ '2.0.4' ],
+60 silly audit   install: [ '0.13.0' ],
+60 silly audit   'ipaddr.js': [ '1.9.1' ],
+60 silly audit   'is-fullwidth-code-point': [ '2.0.0' ],
+60 silly audit   'is-plain-object': [ '2.0.4' ],
+60 silly audit   'is-primitive': [ '3.0.1' ],
+60 silly audit   'is-promise': [ '4.0.0' ],
+60 silly audit   isexe: [ '2.0.0' ],
+60 silly audit   isobject: [ '3.0.1' ],
+60 silly audit   joycon: [ '3.1.1' ],
+60 silly audit   js2xmlparser: [ '4.0.2' ],
+60 silly audit   jsdoc: [ '4.0.5' ],
+60 silly audit   jsep: [ '1.4.0' ],
+60 silly audit   jsonfile: [ '6.2.1' ],
+60 silly audit   'jsonpath-plus': [ '10.3.0' ],
+60 silly audit   keypress: [ '0.2.1' ],
+60 silly audit   keyv: [ '5.6.0' ],
+60 silly audit   klaw: [ '3.0.0' ],
+60 silly audit   'klaw-sync': [ '6.0.0' ],
+60 silly audit   libsignal: [ '6.0.0' ],
+60 silly audit   lilconfig: [ '3.1.3' ],
+60 silly audit   'lines-and-columns': [ '1.2.4' ],
+60 silly audit   'linkify-it': [ '5.0.1' ],
+60 silly audit   'load-tsconfig': [ '0.2.5' ],
+60 silly audit   lodash: [ '4.18.1' ],
+60 silly audit   long: [ '5.3.2' ],
+60 silly audit   'lower-case': [ '2.0.2' ],
+60 silly audit   'lru-cache': [ '11.5.1' ],
+60 silly audit   'lyrics-finder': [ '21.7.0' ],
+60 silly audit   'magic-string': [ '0.30.21' ],
+60 silly audit   'make-error': [ '1.3.6' ],
+60 silly audit   'markdown-it': [ '14.2.0' ],
+60 silly audit   'markdown-it-anchor': [ '8.6.7' ],
+60 silly audit   marked: [ '4.3.0' ],
+60 silly audit   'math-intrinsics': [ '1.1.0' ],
+60 silly audit   mdurl: [ '2.0.0' ],
+60 silly audit   'media-typer': [ '1.1.0' ],
+60 silly audit   'merge-descriptors': [ '2.0.0' ],
+60 silly audit   'mimic-fn': [ '2.1.0' ],
+60 silly audit   minimatch: [ '3.0.8' ],
+60 silly audit   minimist: [ '1.2.8' ],
+60 silly audit   mkdirp: [ '1.0.4' ],
+60 silly audit   mlly: [ '1.8.2' ],
+60 silly audit   ms: [ '2.1.3' ],
+60 silly audit   'music-metadata': [ '11.12.3' ],
+60 silly audit   mz: [ '2.7.0' ],
+60 silly audit   negotiator: [ '1.0.0' ],
+60 silly audit   'no-case': [ '3.0.4' ],
+60 silly audit   'node-fetch': [ '2.7.0' ],
+60 silly audit   'node-fzf': [ '0.14.0' ],
+60 silly audit   'nth-check': [ '2.1.1' ],
+60 silly audit   'object-assign': [ '4.1.1' ],
+60 silly audit   'object-inspect': [ '1.13.4' ],
+60 silly audit   'on-exit-leak-free': [ '2.1.2' ],
+60 silly audit   'on-finished': [ '2.4.1' ],
+60 silly audit   once: [ '1.4.0' ],
+60 silly audit   onetime: [ '5.1.2' ],
+60 silly audit   'p-queue': [ '9.3.0' ],
+60 silly audit   'p-timeout': [ '7.0.1' ],
+60 silly audit   'param-case': [ '3.0.4' ],
+60 silly audit   parse5: [ '7.3.0' ],
+60 silly audit   'parse5-htmlparser2-tree-adapter': [ '7.1.0' ],
+60 silly audit   'parse5-parser-stream': [ '7.1.2' ],
+60 silly audit   parseurl: [ '1.3.3' ],
+60 silly audit   'pascal-case': [ '3.1.2' ],
+60 silly audit   'path-to-regexp': [ '8.4.2' ],
+60 silly audit   pathe: [ '2.0.3' ],
+60 silly audit   picocolors: [ '1.1.1' ],
+60 silly audit   picomatch: [ '4.0.4' ],
+60 silly audit   'pino-std-serializers': [ '7.1.0' ],
+60 silly audit   pirates: [ '4.0.7' ],
+60 silly audit   'pkg-types': [ '1.3.1' ],
+60 silly audit   'play-audio': [ '0.5.2' ],
+60 silly audit   'play-dl': [ '1.9.7' ],
+60 silly audit   'postcss-load-config': [ '6.0.1' ],
+60 silly audit   'process-warning': [ '5.0.0' ],
+60 silly audit   protobufjs: [ '7.6.1' ],
+60 silly audit   'proxy-addr': [ '2.0.7' ],
+60 silly audit   'proxy-from-env': [ '2.1.0' ],
+60 silly audit   'punycode.js': [ '2.3.1' ],
+60 silly audit   qified: [ '0.10.1' ],
+60 silly audit   qs: [ '6.15.2' ],
+60 silly audit   'quick-format-unescaped': [ '4.0.4' ],
+60 silly audit   'range-parser': [ '1.2.1' ],
+60 silly audit   'raw-body': [ '3.0.2' ],
+60 silly audit   'readable-stream': [ '3.6.2' ],
+60 silly audit   readdirp: [ '4.1.2' ],
+60 silly audit   'real-require': [ '0.2.0', '1.0.0' ],
+60 silly audit   redstar: [ '0.0.2' ],
+60 silly audit   relateurl: [ '0.2.7' ],
+60 silly audit   requizzle: [ '0.2.4' ],
+60 silly audit   'resolve-from': [ '5.0.0' ],
+60 silly audit   'restore-cursor': [ '3.1.0' ],
+60 silly audit   rollup: [ '4.60.4' ],
+60 silly audit   router: [ '2.2.0' ],
+60 silly audit   'safe-buffer': [ '5.2.1' ],
+60 silly audit   'safe-stable-stringify': [ '2.5.0' ],
+60 silly audit   'safer-buffer': [ '2.1.2' ],
+60 silly audit   semver: [ '7.8.1' ],
+60 silly audit   send: [ '1.2.1' ],
+60 silly audit   'serve-static': [ '2.2.1' ],
+60 silly audit   'set-value': [ '4.1.0' ],
+60 silly audit   setprototypeof: [ '1.2.0' ],
+60 silly audit   sharp: [ '0.34.5' ],
+60 silly audit   showdown: [ '2.1.0' ],
+60 silly audit   'side-channel': [ '1.1.0' ],
+60 silly audit   'side-channel-list': [ '1.0.1' ],
+60 silly audit   'side-channel-map': [ '1.0.1' ],
+60 silly audit   'side-channel-weakmap': [ '1.0.2' ],
+60 silly audit   'signal-exit': [ '3.0.7' ],
+60 silly audit   'sonic-boom': [ '4.2.1' ],
+60 silly audit   'source-map-support': [ '0.5.21' ],
+60 silly audit   split2: [ '4.2.0' ],
+60 silly audit   statuses: [ '2.0.2' ],
+60 silly audit   string_decoder: [ '1.3.0' ],
+60 silly audit   'string-width': [ '2.1.1' ],
+60 silly audit   'strip-ansi': [ '4.0.0' ],
+60 silly audit   'strip-json-comments': [ '3.1.1' ],
+60 silly audit   strtok3: [ '10.3.5' ],
+60 silly audit   sucrase: [ '3.35.1' ],
+60 silly audit   terser: [ '5.48.0' ],
+60 silly audit   thenify: [ '3.3.1' ],
+60 silly audit   'thenify-all': [ '1.6.0' ],
+60 silly audit   tinyexec: [ '0.3.2' ],
+60 silly audit   tinyglobby: [ '0.2.17' ],
+60 silly audit   toidentifier: [ '1.0.1' ],
+60 silly audit   'token-types': [ '6.1.2' ],
+60 silly audit   tr46: [ '0.0.3' ],
+60 silly audit   'tree-kill': [ '1.2.2' ],
+60 silly audit   'ts-interface-checker': [ '0.1.13' ],
+60 silly audit   'ts-node': [ '10.9.2' ],
+60 silly audit   tslib: [ '2.8.1' ],
+60 silly audit   tsup: [ '8.5.1' ],
+60 silly audit   ttys: [ '0.0.3' ],
+60 silly audit   'type-is': [ '2.1.0' ],
+60 silly audit   typescript: [ '6.0.3' ],
+60 silly audit   'uc.micro': [ '2.1.0' ],
+60 silly audit   ufo: [ '1.6.4' ],
+60 silly audit   'uint8array-extras': [ '1.5.0' ],
+60 silly audit   underscore: [ '1.13.8' ],
+60 silly audit   undici: [ '7.26.0' ],
+60 silly audit   'undici-types': [ '7.24.6' ],
+60 silly audit   universalify: [ '2.0.1' ],
+60 silly audit   unpipe: [ '1.0.0' ],
+60 silly audit   'util-deprecate': [ '1.0.2' ],
+60 silly audit   'v8-compile-cache-lib': [ '3.0.1' ],
+60 silly audit   vary: [ '1.1.2' ],
+60 silly audit   'webidl-conversions': [ '3.0.1' ],
+60 silly audit   'whatsapp-rust-bridge': [ '0.5.4' ],
+60 silly audit   'whatwg-encoding': [ '3.1.1' ],
+60 silly audit   'whatwg-mimetype': [ '4.0.0' ],
+60 silly audit   'whatwg-url': [ '5.0.0' ],
+60 silly audit   which: [ '1.3.1' ],
+60 silly audit   'win-guid': [ '0.2.1' ],
+60 silly audit   wrappy: [ '1.0.2' ],
+60 silly audit   ws: [ '8.21.0' ],
+60 silly audit   xmlcreate: [ '2.0.4' ],
+60 silly audit   yn: [ '3.1.1' ],
+60 silly audit   'yt-search': [ '2.13.1' ],
+60 silly audit   '@ffmpeg-installer/ffmpeg': [ '1.1.0' ],
+60 silly audit   '@ffmpeg-installer/darwin-arm64': [ '4.1.5' ],
+60 silly audit   '@ffmpeg-installer/darwin-x64': [ '4.1.0' ],
+60 silly audit   '@ffmpeg-installer/linux-arm': [ '4.1.3' ],
+60 silly audit   '@ffmpeg-installer/linux-arm64': [ '4.1.4' ],
+60 silly audit   '@ffmpeg-installer/linux-ia32': [ '4.1.0' ],
+60 silly audit   '@ffmpeg-installer/linux-x64': [ '4.1.0' ],
+60 silly audit   '@ffmpeg-installer/win32-ia32': [ '4.1.0' ],
+60 silly audit   '@ffmpeg-installer/win32-x64': [ '4.1.0' ]
+60 silly audit }
+61 http cache @ffmpeg-installer/ffmpeg@https://registry.npmjs.org/@ffmpeg-installer/ffmpeg/-/ffmpeg-1.1.0.tgz 2ms (cache hit)
+62 silly tarball no local data for @ffmpeg-installer/ffmpeg@https://registry.npmjs.org/@ffmpeg-installer/ffmpeg/-/ffmpeg-1.1.0.tgz. Extracting by manifest.
+63 http fetch GET 200 https://registry.npmjs.org/@ffmpeg-installer/ffmpeg/-/ffmpeg-1.1.0.tgz 157ms (cache miss)
+64 http fetch POST 200 https://registry.npmjs.org/-/npm/v1/security/advisories/bulk 1169ms
+65 silly audit report {
+65 silly audit report   minimatch: [
+65 silly audit report     {
+65 silly audit report       id: 1113459,
+65 silly audit report       url: 'https://github.com/advisories/GHSA-3ppc-4f35-3m26',
+65 silly audit report       title: 'minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern',
+65 silly audit report       severity: 'high',
+65 silly audit report       vulnerable_versions: '<3.1.3',
+65 silly audit report       cwe: [Array],
+65 silly audit report       cvss: [Object]
+65 silly audit report     },
+65 silly audit report     {
+65 silly audit report       id: 1113538,
+65 silly audit report       url: 'https://github.com/advisories/GHSA-7r86-cg39-jmmj',
+65 silly audit report       title: 'minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments',
+65 silly audit report       severity: 'high',
+65 silly audit report       vulnerable_versions: '<3.1.3',
+65 silly audit report       cwe: [Array],
+65 silly audit report       cvss: [Object]
+65 silly audit report     },
+65 silly audit report     {
+65 silly audit report       id: 1113546,
+65 silly audit report       url: 'https://github.com/advisories/GHSA-23c5-xmqv-rm74',
+65 silly audit report       title: 'minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions',
+65 silly audit report       severity: 'high',
+65 silly audit report       vulnerable_versions: '<3.1.4',
+65 silly audit report       cwe: [Array],
+65 silly audit report       cvss: [Object]
+65 silly audit report     }
+65 silly audit report   ],
+65 silly audit report   showdown: [
+65 silly audit report     {
+65 silly audit report       id: 1117038,
+65 silly audit report       url: 'https://github.com/advisories/GHSA-rmmh-p597-ppvv',
+65 silly audit report       title: 'Showdown vulnerable to Regular Expression Denial of Service (ReDoS) in link/anchor parsing',
+65 silly audit report       severity: 'moderate',
+65 silly audit report       vulnerable_versions: '<=2.1.0',
+65 silly audit report       cwe: [Array],
+65 silly audit report       cvss: [Object]
+65 silly audit report     }
+65 silly audit report   ]
+65 silly audit report }
+66 silly packumentCache corgi:https://registry.npmjs.org/minimatch cache-miss
+67 silly packumentCache corgi:https://registry.npmjs.org/showdown cache-miss
+68 http cache https://registry.npmjs.org/showdown 52ms (cache hit)
+69 silly packumentCache corgi:https://registry.npmjs.org/showdown set size:69295 disposed:false
+70 http cache https://registry.npmjs.org/minimatch 68ms (cache hit)
+71 silly packumentCache corgi:https://registry.npmjs.org/minimatch set size:168441 disposed:false
+72 silly packumentCache corgi:https://registry.npmjs.org/redstar cache-miss
+73 http cache https://registry.npmjs.org/redstar 12ms (cache hit)
+74 silly packumentCache corgi:https://registry.npmjs.org/redstar set size:1262 disposed:false
+75 silly packumentCache corgi:https://registry.npmjs.org/clean-jsdoc-theme cache-miss
+76 http cache https://registry.npmjs.org/clean-jsdoc-theme 14ms (cache hit)
+77 silly packumentCache corgi:https://registry.npmjs.org/clean-jsdoc-theme set size:163827 disposed:false
+78 silly packumentCache corgi:https://registry.npmjs.org/node-fzf cache-miss
+79 http cache https://registry.npmjs.org/node-fzf 16ms (cache hit)
+80 silly packumentCache corgi:https://registry.npmjs.org/node-fzf set size:42290 disposed:false
+81 silly packumentCache corgi:https://registry.npmjs.org/btch-downloader cache-miss
+82 http cache https://registry.npmjs.org/btch-downloader 15ms (cache hit)
+83 silly packumentCache corgi:https://registry.npmjs.org/btch-downloader set size:99129 disposed:false
+84 silly packumentCache corgi:https://registry.npmjs.org/yt-search cache-miss
+85 http cache https://registry.npmjs.org/yt-search 11ms (cache hit)
+86 silly packumentCache corgi:https://registry.npmjs.org/yt-search set size:126336 disposed:false
+87 silly ADD node_modules/@ffmpeg-installer/ffmpeg
+88 warn allow-scripts 6 packages have install scripts not yet covered by allowScripts:
+88 warn allow-scripts   @whiskeysockets/baileys@7.0.0-rc13 (install: (install scripts present))
+88 warn allow-scripts   btch-downloader@6.0.32 (install: (install scripts present))
+88 warn allow-scripts   esbuild@0.28.0 (install: (install scripts present))
+88 warn allow-scripts   protobufjs@7.6.1 (install: (install scripts present))
+88 warn allow-scripts   sharp@0.34.5 (install: (install scripts present))
+88 warn allow-scripts   esbuild@0.27.7 (install: (install scripts present))
+88 warn allow-scripts
+88 warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to review, or `npm approve-scripts <pkg>` to allow.
+89 verbose cwd /data/data/com.termux/files/home
+90 verbose os Linux 4.14.186-g629cb8c46-dirty
+91 verbose node v26.2.0
+92 verbose npm  v11.16.0
+93 verbose exit 0
+94 info ok
