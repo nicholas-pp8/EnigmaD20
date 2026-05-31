@@ -1,5 +1,6 @@
-const ab = require('ab-downloader'); // Naya superfast engine
+const ab = require('ab-downloader'); 
 const yts = require('yt-search');
+const axios = require('axios'); // Added Axios for safe downloading
 
 async function handlePlay(sock, from, msg, args) {
     if (!args || args.length === 0) {
@@ -9,7 +10,6 @@ async function handlePlay(sock, from, msg, args) {
     const query = args.join(' ');
 
     try {
-        // 1. YouTube se song search karo
         const searchResults = await yts(query);
         if (!searchResults || !searchResults.videos.length) {
             return await sock.sendMessage(from, { text: "❌ Song not found on YouTube." }, { quoted: msg });
@@ -17,49 +17,48 @@ async function handlePlay(sock, from, msg, args) {
 
         const video = searchResults.videos[0];
 
-        // 2. Processing Message
         const processingMsg = await sock.sendMessage(from, { 
             image: { url: video.thumbnail },
-            caption: `*${video.title}*\n\n⬇️ Processing audio via AB-Downloader (Ultra Fast)...` 
+            caption: `*${video.title}*\n\n⬇️ Safely downloading audio buffer...` 
         }, { quoted: msg });
 
-        // 3. 💥 Smart AB-Downloader Magic 💥
         let data;
-        
-        // Auto-detecting the correct method since scraper APIs can vary
-        if (typeof ab.ytmp3 === 'function') {
-            data = await ab.ytmp3(video.url);
-        } else if (typeof ab.yta === 'function') {
-            data = await ab.yta(video.url);
-        } else if (typeof ab.youtube === 'function') {
-            data = await ab.youtube(video.url);
-        } else if (typeof ab.download === 'function') {
-            data = await ab.download(video.url);
-        } else {
-            throw new Error("Could not find the correct audio extraction function.");
-        }
+        if (typeof ab.ytmp3 === 'function') data = await ab.ytmp3(video.url);
+        else if (typeof ab.yta === 'function') data = await ab.yta(video.url);
+        else if (typeof ab.youtube === 'function') data = await ab.youtube(video.url);
+        else if (typeof ab.download === 'function') data = await ab.download(video.url);
+        else throw new Error("Could not find the correct audio extraction function.");
 
-        // Direct audio link nikalna
-        let audioLink = data.url || data.mp3 || data.audio || data.download || (data.data && data.data.url) || (data.data && data.data.audio);
+        // Direct link extract karo
+        let audioLink = data.url || data.mp3 || data.audio || data.download || (data.data && data.data.url) || (data.data && data.data.audio) || data.link;
         
         if (!audioLink) {
-             throw new Error("Direct audio link not found from AB-Downloader API.");
+             throw new Error("Direct audio link not found.");
         }
 
-        // 4. Seedha WhatsApp par direct link bhej do
+        // 💥 THE FIX: Download the audio pretending to be a real browser 💥
+        const response = await axios.get(audioLink, {
+            responseType: 'arraybuffer',
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
+            }
+        });
+
+        const audioBuffer = Buffer.from(response.data, 'binary');
+
+        // PURE Buffer aur 'audio/mpeg' (MP3 format) bhej rahe hain
         await sock.sendMessage(from, { 
-            audio: { url: audioLink }, 
-            mimetype: 'audio/mp4', 
+            audio: audioBuffer, 
+            mimetype: 'audio/mpeg', 
             ptt: false 
         }, { quoted: processingMsg });
 
     } catch (error) {
-        console.error("AB-Downloader Error:", error);
-        await sock.sendMessage(from, { text: "❌ AB-Downloader engine failed to fetch audio. Please try again later." }, { quoted: msg });
+        console.error("Audio Fetch Error:", error);
+        await sock.sendMessage(from, { text: "❌ Audio file fetch failed. Please try again." }, { quoted: msg });
     }
 }
 
-// Lyrics wala function same rahega
 async function handleLyrics(sock, from, msg, args) {
     if (!args || args.length === 0) {
         return await sock.sendMessage(from, { text: "⚠️ Please provide a song name!\nExample: .lyrics saanson ko" }, { quoted: msg });
