@@ -12,6 +12,7 @@
   "type": "commonjs",
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc13",
+    "ab-downloader": "^1.0.2",
     "btch-downloader": "^6.0.32",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
