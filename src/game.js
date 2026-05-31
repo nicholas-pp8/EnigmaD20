@@ -34,7 +34,6 @@ async function handleMove(sock, from, msg, args, senderNum) {
 // ==========================================
 const scrambleGames = {};
 
-// 100+ Words Ultimate Collection
 const wordsList = [
     // Original Words
     "developer", "javascript", "nodejs", "programming", "romance", "forever", 
@@ -73,14 +72,12 @@ const wordsList = [
     "rasgulla", "victoria", "tram", "monsoon", "bengali", "phuchka", 
     "adda", "maidan", "darjeeling", "sundarbans", "biryani",
 
-    // 💀 THE BOSS LEVEL WORD
+    // The Boss Level Word
     "supercalifragilisticexpialidocious"
 ];
 
-// Function to scramble (jumble) the word
 function shuffleWord(word) {
     let shuffled = word.split('').sort(() => 0.5 - Math.random()).join('');
-    // Reshuffle if the word remains exactly the same after scrambling
     while (shuffled === word && word.length > 1) {
         shuffled = word.split('').sort(() => 0.5 - Math.random()).join('');
     }

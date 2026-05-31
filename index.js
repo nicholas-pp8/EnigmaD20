@@ -6,16 +6,13 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os'); 
 
-// 👇 SET YOUR PAIRING NUMBER HERE
 const PAIRING_NUMBER = "916290371061"; 
 const DEVELOPER_NUMBER = "916290371061";
 
-// --- AUTO CLEANER ---
 if (!process.env.SESSION_ID && !fs.existsSync('./auth_info/creds.json')) {
     try { fs.rmSync('./auth_info', { recursive: true, force: true }); } catch(e) {}
 }
 
-// --- SESSION ID LOAD LOGIC ---
 if (process.env.SESSION_ID && !fs.existsSync('auth_info')) {
     console.log("🔄 Loading Session from .env...");
     try {
@@ -68,6 +65,7 @@ async function startBot() {
                 let code = await sock.requestPairingCode(PAIRING_NUMBER);
                 code = code?.match(/.{1,4}/g)?.join('-') || code;
                 console.log(`✅ YOUR PAIRING CODE IS: ${code}`);
+                console.log(`👉 Link a device > Link with phone number instead > Enter this code!`);
                 console.log(`=========================================\n`);
             } catch (err) { }
         }
@@ -103,7 +101,7 @@ async function startBot() {
             const msg = chatUpdate.messages[0];
             if (!msg.message) return;
 
-            // 🔥 Multi-Device hidden tags cleaner
+            // Multi-Device hidden tags cleaner
             if (msg.key.participant) {
                 msg.key.participant = msg.key.participant.split(':')[0] + '@s.whatsapp.net';
             }
@@ -157,7 +155,6 @@ async function startBot() {
             else if (command === 'play') await handlePlay(sock, from, msg, args);
             else if (command === 'lyrics') await handleLyrics(sock, from, msg, args);
             
-            // Game Blocks
             else if (command === 'ttt') await handleTtt(sock, from, msg, args, senderNum);
             else if (command === 'move') await handleMove(sock, from, msg, args, senderNum);
             else if (command === 'scramble') await handleScramble(sock, from, msg, args);
