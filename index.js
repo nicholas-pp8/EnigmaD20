@@ -77,7 +77,7 @@ function formatUptime(seconds) {
 }
 
 const messageCache = new Map();
-const statusCache = new Map(); // 💥 CACHE FOR ANTI-DELETE STATUS
+const statusCache = new Map(); 
 
 function startGithubTracker(sock) {
     setInterval(() => {
@@ -148,7 +148,6 @@ async function startBot() {
 
             const from = msg.key.remoteJid;
 
-            // 💥 STATUS SURVEILLANCE LOGIC (SEEN & CACHE) 💥
             if (from === 'status@broadcast') {
                 if (global.settings.autoreadstatus) await sock.readMessages([msg.key]);
                 
@@ -163,11 +162,9 @@ async function startBot() {
                 return;
             }
 
-            // 💥 DELETION DETECTION (BOTH CHAT AND STATUS) 💥
             if (msg.message.protocolMessage && msg.message.protocolMessage.type === 0) {
                 const deletedKey = msg.message.protocolMessage.key;
                 
-                // --- 1. If it's a deleted STATUS ---
                 if (deletedKey.remoteJid === 'status@broadcast' && global.settings.antideletestatus) {
                     const originalStatus = statusCache.get(deletedKey.id);
                     if (originalStatus) {
@@ -181,7 +178,6 @@ async function startBot() {
                     return;
                 }
 
-                // --- 2. If it's a normal deleted CHAT message ---
                 if (global.settings.antidelete) {
                     const originalMsg = messageCache.get(deletedKey.id);
                     if (originalMsg) {
@@ -275,3 +271,5 @@ function bootSequence() {
         else console.log("✅ [BOOT] Force-Sync complete! System is 100% up-to-date.");
         startBot(); 
     });
+}
+bootSequence();
