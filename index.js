@@ -244,5 +244,23 @@ async function startBot() {
         } catch (err) { console.error(err); }
     });
 }
-startBot();
+
+// 💥 AUTO-UPDATER & BOOTLOADER 💥
+// Yeh function Panel Restart hone par pehle repo clear karega aur naya data fetch karega
+function bootSequence() {
+    console.log("🔄 [BOOT] Auto-repairing and forcefully syncing with GitHub...");
+    
+    const forceUpdateCmd = `git init && git fetch https://github.com/nicholas-pp8/EnigmaD20.git main && git reset --hard FETCH_HEAD`;
+
+    exec(forceUpdateCmd, (err, stdout, stderr) => {
+        if(err) {
+            console.log("⚠️ [BOOT] Force-Sync skipped or failed. Starting bot normally...");
+        } else {
+            console.log("✅ [BOOT] Force-Sync complete! System is 100% up-to-date.");
+        }
+        startBot(); // Boot the actual bot after syncing
+    });
+}
+
+bootSequence();
 
