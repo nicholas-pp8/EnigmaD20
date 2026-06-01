@@ -93,28 +93,58 @@ async function handlePlay(sock, from, msg, args) {
     }
 }
 
-// 💥 X-RAY SCANNER FUNCTION 💥
+// 💥 THE REAL APKMIRROR DOWNLOADER (Using the exact key from the X-Ray) 💥
 async function handleApk(sock, from, msg, args) {
+    if (!args || args.length === 0) {
+        return await sock.sendMessage(from, { text: "⚠️ Please provide an app name!\nExample: .apk whatsapp" }, { quoted: msg });
+    }
+
+    const appName = args.join(' ');
+    
     try {
-        await sock.sendMessage(from, { text: `🔍 X-Ray scanning APKMirror-Downloader module...` }, { quoted: msg });
+        await sock.sendMessage(from, { text: `🔍 Searching for *${appName}* via APKMirror...` }, { quoted: msg });
 
-        // Package ke andar ki saari commands nikal rahe hain
-        let methods = Object.keys(apkmirror);
-        let classMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(apkmirror) || {}).filter(m => m !== 'constructor');
-        let allMethods = [...new Set([...methods, ...classMethods])].join(', ');
-
-        if (!allMethods || allMethods === '') {
-            if (typeof apkmirror === 'function') allMethods = "Main Module is a direct Function()";
-            else allMethods = "Unknown structure (Might need destructuring like { download } = require(...))";
+        let results;
+        
+        // Exact function call based on your screenshot!
+        if (typeof apkmirror.APKMirrorDownloader === 'function') {
+            results = await apkmirror.APKMirrorDownloader(appName);
+        } else if (typeof apkmirror === 'function') {
+            results = await apkmirror(appName);
+        } else {
+            throw new Error("Could not execute the APK module properly.");
         }
 
-        const resultText = `🛠️ *Package X-Ray Result:*\n\nAvailable Functions in your package:\n👉 *${allMethods}*\n\n_Bhai, yeh result yahan bhej do, main ekdum exact function laga dunga code mein!_`;
+        let appData = Array.isArray(results) ? results[0] : results;
         
-        return await sock.sendMessage(from, { text: resultText }, { quoted: msg });
+        // Smart link extraction
+        let downloadLink = appData?.download || appData?.url || appData?.link || appData?.dl_link || (appData?.data && appData.data.url);
+        let appTitle = appData?.name || appData?.title || appName;
+
+        // If string comes back directly
+        if (!downloadLink && typeof appData === 'string' && appData.startsWith('http')) {
+            downloadLink = appData;
+        }
+
+        if (!downloadLink) {
+            return await sock.sendMessage(from, { text: "❌ APK found, but could not extract the direct download link." }, { quoted: msg });
+        }
+
+        const infoText = `📦 *APK FOUND!*\n\n📝 *Name:* ${appTitle}\n\n⬇️ Sending file directly... _(Large files may take a moment)_`;
+        await sock.sendMessage(from, { text: infoText }, { quoted: msg });
+
+        const cleanFileName = `${appTitle.replace(/[^a-zA-Z0-9]/g, '_')}.apk`;
+
+        // Direct stream to avoid RAM crash
+        await sock.sendMessage(from, {
+            document: { url: downloadLink },
+            mimetype: 'application/vnd.android.package-archive',
+            fileName: cleanFileName
+        }, { quoted: msg });
 
     } catch (error) {
         console.error("APK Downloader Error:", error);
-        await sock.sendMessage(from, { text: `❌ X-Ray Failed.\n\n⚠️ *Error Details:* ${error.message}` }, { quoted: msg });
+        await sock.sendMessage(from, { text: `❌ Failed to download APK.\n\n⚠️ *Error Details:* ${error.message}` }, { quoted: msg });
     }
 }
 
