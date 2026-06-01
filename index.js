@@ -30,7 +30,7 @@ const { handleTtt, handleMove, handleScramble, handleAnswer, handleRps } = requi
 const { handleOwnerCommands } = require('./src/owner');
 const { handleTruecaller } = require('./src/search'); 
 const { handleGroupCommands } = require('./src/group'); 
-const { handleEphoto } = require('./src/Ephoto360js/handler'); // 💥 Ephoto Import Added
+const { handleEphoto } = require('./src/Ephoto360js/handler'); 
 
 global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: false, antidelete: false, updateRequired: false };
 const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
@@ -39,7 +39,6 @@ const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217
 const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm', 'schedule', 'antidelete'];
 const groupCommandsList = ['hidetag', 'tagall', 'removeall', 'promote', 'demote']; 
 
-// 💥 Dynamic Ephoto Commands List
 const ephotoCommands = ['1917style', 'advancedglow', 'blackpinklogo', 'blackpinkstyle', 'cartoonstyle', 'deletingtext', 'dragonball', 'effectclouds', 'flag3dtext', 'flagtext', 'freecreate', 'galaxystyle', 'galaxywallpaper', 'glitchtext', 'glowingtext', 'gradienttext', 'graffiti', 'incandescent', 'lighteffects', 'logomaker', 'luxurygold', 'makingneon', 'matrix', 'multicoloredneon', 'neonglitch', 'papercutstyle', 'pixelglitch', 'royaltext', 'sand', 'summerbeach', 'topography', 'typography', 'watercolortext', 'writetext'];
 
 const app = express();
@@ -178,10 +177,7 @@ async function startBot() {
 
             const isFromMe = msg.key.fromMe;
             const senderNum = (isFromMe ? sock.user.id : (msg.key.participant || msg.key.remoteJid)).split('@')[0].split(':')[0];
-            
-            // Fixed body extraction from previous update
             const body = msg.message.conversation || msg.message.extendedTextMessage?.text || msg.message.imageMessage?.caption || msg.message.videoMessage?.caption || '';
-            
             const isOwner = isFromMe || AUTHORIZED_NUMBERS.includes(senderNum); 
 
             if (from === 'status@broadcast') {
@@ -204,6 +200,7 @@ async function startBot() {
 
             if (global.settings.autotyping) await sock.sendPresenceUpdate('composing', from);
 
+            // 💥 FULL MENU ADDED HERE 💥
             if (command === 'menu') {
                 const dateObj = new Date();
                 const currentDate = dateObj.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' });
@@ -213,7 +210,7 @@ async function startBot() {
                 if (speed < 0 || speed > 1000) speed = Math.floor(Math.random() * 30) + 15; 
                 const serverType = os.type() === 'Linux' ? 'Linux Engine' : os.type();
 
-                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📹 .video - Download Media\n│ 🎬 .tiktok - Download TikTok\n│ 📸 .instagram - Download Insta\n│ 📘 .facebook - Download FB\n│ 📝 .lyrics - Get lyrics\n│ 📦 .apk - Download App file\n╰──────────────────────────\n\n╭─── 🎨 *EPHOTO360 MENU* ───\n│ 🎨 .glitchtext\n│ 🎨 .blackpinkstyle\n│ 🎨 .makingneon\n│ 🎨 .luxurygold\n│ 🎨 .matrix\n│ 🎨 .dragonball\n│ _(and 30+ more effects! type .<effect> <text>)_\n╰───────────────────────\n\n╭─── 👥 *GROUP MENU* ───\n│ 🔊 .hidetag - Ghost tag\n│ 🏷️ .tagall - Tag everyone\n│ 🚀 .promote - Make Admin\n│ 📉 .demote - Remove Admin\n│ 🧨 .removeall - Nuke Group\n╰──────────────────────\n\n╭─── 🔍 *SEARCH MENU* ───\n│ 📞 .truecaller - Caller info\n╰────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n│ 👊 .rps - Rock Paper Scissors\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ ♻️ .antidelete on/off - Auto-recover\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
+                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📹 .video - Download Media\n│ 🎬 .tiktok - Download TikTok\n│ 📸 .instagram - Download Insta\n│ 📘 .facebook - Download FB\n│ 📝 .lyrics - Get lyrics\n│ 📦 .apk - Download App file\n╰──────────────────────────\n\n╭─── 🎨 *EPHOTO360 MENU* ───\n│ 🎨 .1917style\n│ 🎨 .advancedglow\n│ 🎨 .blackpinklogo\n│ 🎨 .blackpinkstyle\n│ 🎨 .cartoonstyle\n│ 🎨 .deletingtext\n│ 🎨 .dragonball\n│ 🎨 .effectclouds\n│ 🎨 .flag3dtext\n│ 🎨 .flagtext\n│ 🎨 .freecreate\n│ 🎨 .galaxystyle\n│ 🎨 .galaxywallpaper\n│ 🎨 .glitchtext\n│ 🎨 .glowingtext\n│ 🎨 .gradienttext\n│ 🎨 .graffiti\n│ 🎨 .incandescent\n│ 🎨 .lighteffects\n│ 🎨 .logomaker\n│ 🎨 .luxurygold\n│ 🎨 .makingneon\n│ 🎨 .matrix\n│ 🎨 .multicoloredneon\n│ 🎨 .neonglitch\n│ 🎨 .papercutstyle\n│ 🎨 .pixelglitch\n│ 🎨 .royaltext\n│ 🎨 .sand\n│ 🎨 .summerbeach\n│ 🎨 .topography\n│ 🎨 .typography\n│ 🎨 .watercolortext\n│ 🎨 .writetext\n╰───────────────────────\n\n╭─── 👥 *GROUP MENU* ───\n│ 🔊 .hidetag - Ghost tag\n│ 🏷️ .tagall - Tag everyone\n│ 🚀 .promote - Make Admin\n│ 📉 .demote - Remove Admin\n│ 🧨 .removeall - Nuke Group\n╰──────────────────────\n\n╭─── 🔍 *SEARCH MENU* ───\n│ 📞 .truecaller - Caller info\n╰────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n│ 👊 .rps - Rock Paper Scissors\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ ♻️ .antidelete on/off - Auto-recover\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
                 
                 await sock.sendMessage(from, { text: menuText }, { quoted: msg });
             }
@@ -229,7 +226,7 @@ async function startBot() {
             }
             else if (ownerCommandsList.includes(command)) await handleOwnerCommands(sock, from, msg, args, command, isOwner);
             else if (groupCommandsList.includes(command)) await handleGroupCommands(sock, from, msg, args, command, senderNum, isOwner);
-            else if (ephotoCommands.includes(command)) await handleEphoto(sock, from, msg, command, args.join(' ')); // 💥 Ephoto Trigger
+            else if (ephotoCommands.includes(command)) await handleEphoto(sock, from, msg, command, args.join(' ')); 
             else if (command === 'play') await handlePlay(sock, from, msg, args);
             else if (command === 'video') await handleVideo(sock, from, msg, args);
             else if (command === 'tiktok') await handleTikTok(sock, from, msg, args);
