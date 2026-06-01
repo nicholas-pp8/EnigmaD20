@@ -40,13 +40,22 @@ async function handleOwnerCommands(sock, from, msg, args, command, isOwner) {
     }
 
     switch (command) {
-        // 💥 CORE COMMANDS RESTORED 💥
+        // 💥 CORE COMMANDS RESTORED & UPGRADED 💥
         case 'update':
             await sock.sendMessage(from, { text: "🔄 *Updating system engine... pulling latest build from GitHub.*" }, { quoted: msg });
-            exec('git pull', async (err, stdout) => {
-                if (err) return await sock.sendMessage(from, { text: `❌ Update Failed: ${err.message}` });
-                global.settings.updateRequired = false; // Unlock the bot!
-                await sock.sendMessage(from, { text: `✅ *Update Successful!*\n\n${stdout}\nRestarting system...` });
+            
+            // Smart Git Pull logic
+            exec('git pull origin main', async (err, stdout, stderr) => {
+                if (err) {
+                    // Agar dusre device pe "not a git repo" wala error aaye, bot khud fix batayega
+                    if (err.message.includes('not a git repository')) {
+                        return await sock.sendMessage(from, { text: `❌ *Update Failed:* This device is not linked to GitHub!\n\n_Run these commands in terminal:_\n1. git init\n2. git remote add origin https://github.com/nicholas-pp8/EnigmaD20.git\n3. git fetch\n4. git branch --set-upstream-to=origin/main main` });
+                    }
+                    return await sock.sendMessage(from, { text: `❌ Update Failed:\n\n${err.message}` });
+                }
+                
+                global.settings.updateRequired = false; // Deadlock unlocker
+                await sock.sendMessage(from, { text: `✅ *Update Successful!*\n\n${stdout || stderr}\nRestarting system...` });
                 process.exit(0);
             });
             break;
