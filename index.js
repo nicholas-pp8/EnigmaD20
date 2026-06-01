@@ -29,14 +29,14 @@ const { handlePlay, handleLyrics, handleApk, handleVideo, handleTikTok, handleIn
 const { handleTtt, handleMove, handleScramble, handleAnswer, handleRps } = require('./src/game'); 
 const { handleOwnerCommands } = require('./src/owner');
 const { handleTruecaller } = require('./src/search'); 
-const { handleGroupCommands } = require('./src/group'); // 💥 Import Group Commands
+const { handleGroupCommands } = require('./src/group'); 
 
 global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: false, antidelete: false, updateRequired: false };
 const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
 const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217128296820869", "919339777647"];
 
 const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm', 'schedule', 'antidelete'];
-const groupCommandsList = ['hidetag', 'tagall', 'removeall', 'promote', 'demote']; // 💥 Group Commands List
+const groupCommandsList = ['hidetag', 'tagall', 'removeall', 'promote', 'demote']; 
 
 const app = express();
 app.get('/', (req, res) => res.send('Enigma D20 is running!'));
@@ -174,6 +174,10 @@ async function startBot() {
 
             const isFromMe = msg.key.fromMe;
             const senderNum = (isFromMe ? sock.user.id : (msg.key.participant || msg.key.remoteJid)).split('@')[0].split(':')[0];
+            
+            // 💥 FIX APPLIED HERE: Added the missing body variable line back! 💥
+            const body = msg.message.conversation || msg.message.extendedTextMessage?.text || msg.message.imageMessage?.caption || msg.message.videoMessage?.caption || '';
+            
             const isOwner = isFromMe || AUTHORIZED_NUMBERS.includes(senderNum); 
 
             if (from === 'status@broadcast') {
@@ -220,7 +224,7 @@ async function startBot() {
                 await sock.sendMessage(from, { text: `⏳ *Bot is running since ${uptimeStr}*` }, { quoted: msg });
             }
             else if (ownerCommandsList.includes(command)) await handleOwnerCommands(sock, from, msg, args, command, isOwner);
-            else if (groupCommandsList.includes(command)) await handleGroupCommands(sock, from, msg, args, command, senderNum, isOwner); // 💥 Execution line for Group
+            else if (groupCommandsList.includes(command)) await handleGroupCommands(sock, from, msg, args, command, senderNum, isOwner);
             else if (command === 'play') await handlePlay(sock, from, msg, args);
             else if (command === 'video') await handleVideo(sock, from, msg, args);
             else if (command === 'tiktok') await handleTikTok(sock, from, msg, args);
