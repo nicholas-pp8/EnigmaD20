@@ -1,5 +1,5 @@
 const ab = require('ab-downloader'); 
-const { youtube, apk } = require('btch-downloader'); // APK extractor added here
+const { youtube, apk } = require('btch-downloader');
 const yts = require('yt-search');
 const axios = require('axios');
 const fs = require('fs');
@@ -93,7 +93,7 @@ async function handlePlay(sock, from, msg, args) {
     }
 }
 
-// 💥 NEW: POWERFUL APK DOWNLOADER FUNCTION 💥
+// 💥 FIX: DIRECT URL STREAMING FOR APK TO PREVENT RAM CRASH 💥
 async function handleApk(sock, from, msg, args) {
     if (!args || args.length === 0) {
         return await sock.sendMessage(from, { text: "⚠️ Please provide an app name!\nExample: .apk whatsapp" }, { quoted: msg });
@@ -104,39 +104,30 @@ async function handleApk(sock, from, msg, args) {
     try {
         await sock.sendMessage(from, { text: `🔍 Searching for *${appName}* APK...` }, { quoted: msg });
 
-        // btch-downloader se APK link fetch karna
         const appData = await apk(appName);
 
-        if (!appData || !appData.url) {
-            return await sock.sendMessage(from, { text: "❌ APK not found. Please try a different name." }, { quoted: msg });
+        let downloadLink = appData.url || appData.link || appData.download || (appData.data && appData.data.url);
+        let appTitle = appData.name || appData.title || appName;
+
+        if (!downloadLink) {
+            return await sock.sendMessage(from, { text: "❌ APK not found or API did not return a link." }, { quoted: msg });
         }
 
-        const appTitle = appData.name || appName;
-        const infoText = `📦 *APK FOUND!*\n\n📝 *Name:* ${appTitle}\n🍏 *Package:* ${appData.id || 'N/A'}\n\n⬇️ Downloading file directly into WhatsApp...`;
-        
+        const infoText = `📦 *APK FOUND!*\n\n📝 *Name:* ${appTitle}\n\n⬇️ Sending file... _(Large files like games may take time or get rejected by WhatsApp's 100MB limit)_`;
         await sock.sendMessage(from, { text: infoText }, { quoted: msg });
 
-        // Download APK file via axios response type stream
-        const response = await axios({
-            method: 'GET',
-            url: appData.url,
-            responseType: 'arraybuffer',
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
-        });
-
-        const apkBuffer = Buffer.from(response.data, 'binary');
         const cleanFileName = `${appTitle.replace(/[^a-zA-Z0-9]/g, '_')}.apk`;
 
-        // Sending as a Document (.apk file) so user can directly click and install it
+        // Direct URL passing instead of Buffer. Saves 100% RAM!
         await sock.sendMessage(from, {
-            document: apkBuffer,
+            document: { url: downloadLink },
             mimetype: 'application/vnd.android.package-archive',
             fileName: cleanFileName
         }, { quoted: msg });
 
     } catch (error) {
         console.error("APK Downloader Error:", error);
-        await sock.sendMessage(from, { text: "❌ Failed to download APK. The file might be too large or restricted." }, { quoted: msg });
+        await sock.sendMessage(from, { text: `❌ Failed to download APK.\n\n⚠️ *Reason:* The file might be too large for WhatsApp (Max 100MB limit) or the API blocked the request.\n_Error: ${error.message}_` }, { quoted: msg });
     }
 }
 
@@ -148,5 +139,5 @@ async function handleLyrics(sock, from, msg, args) {
     await sock.sendMessage(from, { text: `🔍 Searching lyrics for: *${query}*...` }, { quoted: msg });
 }
 
-module.exports = { handlePlay, handleLyrics, handleApk }; // Added handleApk to exports
+module.exports = { handlePlay, handleLyrics, handleApk };
 
