@@ -93,7 +93,7 @@ async function handlePlay(sock, from, msg, args) {
     }
 }
 
-// 💥 THE REAL APKMIRROR DOWNLOADER (Using the exact key from the X-Ray) 💥
+// 💥 FINAL APK CLASS CONSTRUCTOR FIX 💥
 async function handleApk(sock, from, msg, args) {
     if (!args || args.length === 0) {
         return await sock.sendMessage(from, { text: "⚠️ Please provide an app name!\nExample: .apk whatsapp" }, { quoted: msg });
@@ -104,30 +104,40 @@ async function handleApk(sock, from, msg, args) {
     try {
         await sock.sendMessage(from, { text: `🔍 Searching for *${appName}* via APKMirror...` }, { quoted: msg });
 
-        let results;
+        let downloaderInstance;
         
-        // Exact function call based on your screenshot!
-        if (typeof apkmirror.APKMirrorDownloader === 'function') {
-            results = await apkmirror.APKMirrorDownloader(appName);
-        } else if (typeof apkmirror === 'function') {
-            results = await apkmirror(appName);
+        // Asli FIX: "new" keyword ka use karke object class initialize karna
+        if (apkmirror.APKMirrorDownloader) {
+            downloaderInstance = new apkmirror.APKMirrorDownloader();
         } else {
-            throw new Error("Could not execute the APK module properly.");
+            downloaderInstance = new apkmirror();
+        }
+
+        let results;
+        // Ab class initialize hone ke baad uska andar ka method dhund kar chalana
+        if (typeof downloaderInstance.download === 'function') {
+            results = await downloaderInstance.download(appName);
+        } else if (typeof downloaderInstance.search === 'function') {
+            results = await downloaderInstance.search(appName);
+        } else if (typeof downloaderInstance.get === 'function') {
+            results = await downloaderInstance.get(appName);
+        } else {
+            // Agar method phir bhi nahi mila, toh scanner wapas method list nikalega
+            let instMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(downloaderInstance)).filter(m => m !== 'constructor');
+            throw new Error(`Class successfully initialized! But method missing. Available methods are: ${instMethods.join(', ')}`);
         }
 
         let appData = Array.isArray(results) ? results[0] : results;
         
-        // Smart link extraction
         let downloadLink = appData?.download || appData?.url || appData?.link || appData?.dl_link || (appData?.data && appData.data.url);
         let appTitle = appData?.name || appData?.title || appName;
 
-        // If string comes back directly
         if (!downloadLink && typeof appData === 'string' && appData.startsWith('http')) {
             downloadLink = appData;
         }
 
         if (!downloadLink) {
-            return await sock.sendMessage(from, { text: "❌ APK found, but could not extract the direct download link." }, { quoted: msg });
+             throw new Error(`Link not found. Raw Data: ${JSON.stringify(appData).substring(0, 100)}...`);
         }
 
         const infoText = `📦 *APK FOUND!*\n\n📝 *Name:* ${appTitle}\n\n⬇️ Sending file directly... _(Large files may take a moment)_`;
@@ -135,7 +145,6 @@ async function handleApk(sock, from, msg, args) {
 
         const cleanFileName = `${appTitle.replace(/[^a-zA-Z0-9]/g, '_')}.apk`;
 
-        // Direct stream to avoid RAM crash
         await sock.sendMessage(from, {
             document: { url: downloadLink },
             mimetype: 'application/vnd.android.package-archive',
