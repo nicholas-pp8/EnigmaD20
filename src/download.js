@@ -1,5 +1,5 @@
 const ab = require('ab-downloader'); 
-const apkmirror = require('apkmirror-downloader'); // 👈 Asli aur sahi package!
+const apkmirror = require('apkmirror-downloader'); 
 const yts = require('yt-search');
 const axios = require('axios');
 const fs = require('fs');
@@ -93,54 +93,28 @@ async function handlePlay(sock, from, msg, args) {
     }
 }
 
-// 💥 THE REAL APKMIRROR-DOWNLOADER FUNCTION 💥
+// 💥 X-RAY SCANNER FUNCTION 💥
 async function handleApk(sock, from, msg, args) {
-    if (!args || args.length === 0) {
-        return await sock.sendMessage(from, { text: "⚠️ Please provide an app name!\nExample: .apk whatsapp" }, { quoted: msg });
-    }
-
-    const appName = args.join(' ');
-    
     try {
-        await sock.sendMessage(from, { text: `🔍 Searching for *${appName}* via APKMirror-Downloader...` }, { quoted: msg });
+        await sock.sendMessage(from, { text: `🔍 X-Ray scanning APKMirror-Downloader module...` }, { quoted: msg });
 
-        let appData;
+        // Package ke andar ki saari commands nikal rahe hain
+        let methods = Object.keys(apkmirror);
+        let classMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(apkmirror) || {}).filter(m => m !== 'constructor');
+        let allMethods = [...new Set([...methods, ...classMethods])].join(', ');
+
+        if (!allMethods || allMethods === '') {
+            if (typeof apkmirror === 'function') allMethods = "Main Module is a direct Function()";
+            else allMethods = "Unknown structure (Might need destructuring like { download } = require(...))";
+        }
+
+        const resultText = `🛠️ *Package X-Ray Result:*\n\nAvailable Functions in your package:\n👉 *${allMethods}*\n\n_Bhai, yeh result yahan bhej do, main ekdum exact function laga dunga code mein!_`;
         
-        // Smart detection for apkmirror-downloader module
-        if (typeof apkmirror.download === 'function') {
-            appData = await apkmirror.download(appName);
-        } else if (typeof apkmirror === 'function') {
-            appData = await apkmirror(appName);
-        } else if (typeof apkmirror.search === 'function') {
-            const searchResults = await apkmirror.search(appName);
-            appData = Array.isArray(searchResults) ? searchResults[0] : searchResults;
-        } else {
-            throw new Error("API structure not matched.");
-        }
-
-        // Link extraction logic
-        let downloadLink = appData?.download || appData?.url || appData?.link || (appData?.data && appData.data.url) || appData?.dl_link;
-        let appTitle = appData?.name || appData?.title || appName;
-
-        if (!downloadLink) {
-            return await sock.sendMessage(from, { text: "❌ Could not extract direct download link from the package." }, { quoted: msg });
-        }
-
-        const infoText = `📦 *APK FOUND!*\n\n📝 *Name:* ${appTitle}\n\n⬇️ Sending file directly... _(Large files may take a moment)_`;
-        await sock.sendMessage(from, { text: infoText }, { quoted: msg });
-
-        const cleanFileName = `${appTitle.replace(/[^a-zA-Z0-9]/g, '_')}.apk`;
-
-        // Direct stream
-        await sock.sendMessage(from, {
-            document: { url: downloadLink },
-            mimetype: 'application/vnd.android.package-archive',
-            fileName: cleanFileName
-        }, { quoted: msg });
+        return await sock.sendMessage(from, { text: resultText }, { quoted: msg });
 
     } catch (error) {
         console.error("APK Downloader Error:", error);
-        await sock.sendMessage(from, { text: `❌ Failed to download APK.\n\n⚠️ *Error Details:* ${error.message}` }, { quoted: msg });
+        await sock.sendMessage(from, { text: `❌ X-Ray Failed.\n\n⚠️ *Error Details:* ${error.message}` }, { quoted: msg });
     }
 }
 
