@@ -5,31 +5,38 @@ async function handleTruecaller(sock, from, msg, args) {
         return await sock.sendMessage(from, { text: "⚠️ Please provide a phone number with country code!\n\n*Example:* .truecaller +919876543210" }, { quoted: msg });
     }
 
-    // Number ko clean karna (taaki spaces ya dashes hat jaye)
     const phoneNumber = args.join('').replace(/[^0-9+]/g, '');
 
     try {
         await sock.sendMessage(from, { text: `🔍 Searching Truecaller database for: *${phoneNumber}*...` }, { quoted: msg });
 
-        // Truecaller Search Payload
         const searchData = {
             number: phoneNumber,
             countryCode: "IN",
-            installationId: process.env.TRUECALLER_ID || "a1i0G--V-5N6-5N6-5N6-5N6-5N6" // Dummy fallback ID
+            installationId: process.env.TRUECALLER_ID || "a1i0G--V-5N6-5N6-5N6-5N6-5N6" 
         };
 
-        const response = await truecallerjs.search(searchData);
+        // 💥 FIX: Function ka asli naam searchNumber() hai 💥
+        const response = await truecallerjs.searchNumber(searchData);
 
-        if (response && response.json()) {
-            const data = response.json();
+        if (response) {
+            // Smart JSON parsing kyunki alag-alag versions mein format alag hota hai
+            let data;
+            if (typeof response.json === 'function') {
+                data = response.json();
+            } else if (typeof response === 'string') {
+                data = JSON.parse(response);
+            } else {
+                data = response;
+            }
             
-            if (data.data && data.data.length > 0) {
+            if (data && data.data && data.data.length > 0) {
                 const user = data.data[0];
                 const name = user.name || "Unknown Name";
                 const carrier = user.phones && user.phones[0] ? user.phones[0].carrier : "N/A";
                 const email = user.internetAddresses && user.internetAddresses[0] ? user.internetAddresses[0].id : "N/A";
                 const spamScore = user.score ? user.score.spamScore : 0;
-                const userType = user.access == "PUBLIC" ? "Public" : "Private";
+                const userType = user.access === "PUBLIC" ? "Public" : "Private";
 
                 let replyText = `📞 *TRUECALLER RESULT* 📞\n\n`;
                 replyText += `👤 *Name:* ${name}\n`;
@@ -51,7 +58,7 @@ async function handleTruecaller(sock, from, msg, args) {
     } catch (error) {
         console.error("Truecaller Error:", error);
         await sock.sendMessage(from, { 
-            text: `❌ Error fetching details.\n\n⚠️ *Reason:* The Truecaller API might have blocked the dummy ID.\n_To fix this, run 'npx truecallerjs login' in Termux to generate your own ID._\n\n_Error: ${error.message}_` 
+            text: `❌ Error fetching details.\n\n⚠️ *Reason:* API failed or Dummy ID expired.\n_To fix this, run 'npx truecallerjs login' in Termux to generate your own ID._\n\n_Error: ${error.message}_` 
         }, { quoted: msg });
     }
 }
