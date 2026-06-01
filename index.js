@@ -10,6 +10,28 @@ const { exec } = require('child_process');
 const PAIRING_NUMBER = "916290371061"; 
 const DEVELOPER_NUMBER = "916290371061";
 
+// 💥 DATABASE SYSTEM INITIALIZATION 💥
+const dbPath = './database.json';
+const defaultSettings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: false, antidelete: false, updateRequired: false, antibug: false, anticall: false, antideletestatus: false, antiedit: false, antiviewonce: false, autobio: false, autoblock: false, autoreact: false, autorecord: false, autorecordtyping: false, autotype: false, autoviewstatus: false, chatbot: false };
+const defaultBotConfig = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
+const defaultText = { mode: "public", timezone: "Asia/Kolkata", menuImage: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe", anticallMsg: "🚫 Calls are not allowed!" };
+
+if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, JSON.stringify({ settings: defaultSettings, BOT_CONFIG: defaultBotConfig, botConfigText: defaultText }, null, 2));
+}
+
+// Load Database into Global Memory
+const db = JSON.parse(fs.readFileSync(dbPath, 'utf-8'));
+global.settings = db.settings || defaultSettings;
+global.BOT_CONFIG = db.BOT_CONFIG || defaultBotConfig;
+global.botConfigText = db.botConfigText || defaultText;
+
+// Function to save changes permanently
+global.saveDB = () => {
+    fs.writeFileSync(dbPath, JSON.stringify({ settings: global.settings, BOT_CONFIG: global.BOT_CONFIG, botConfigText: global.botConfigText }, null, 2));
+}
+// ------------------------------------
+
 if (!process.env.SESSION_ID && !fs.existsSync('./auth_info/creds.json')) {
     try { fs.rmSync('./auth_info', { recursive: true, force: true }); } catch(e) {}
 }
@@ -32,8 +54,6 @@ const { handleTruecaller } = require('./src/search');
 const { handleGroupCommands } = require('./src/group'); 
 const { handleEphoto } = require('./src/Ephoto360js/handler'); 
 
-global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: false, antidelete: false, updateRequired: false };
-const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
 const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217128296820869", "919339777647"];
 
 const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm', 'schedule', 'antidelete', 'antibug', 'anticall', 'antideletestatus', 'antiedit', 'antiviewonce', 'autobio', 'autoblock', 'autoreact', 'autorecord', 'autorecordtyping', 'autotype', 'autoviewstatus', 'chatbot', 'addbadword', 'deletebadword', 'addcountrycode', 'delcountrycode', 'listcountrycode', 'addignorelist', 'delignorelist', 'addsudo', 'delsudo', 'setanticallmsg', 'delanticallmsg', 'showanticallmsg', 'testanticallmsg', 'getsettings', 'resetsetting', 'statusdelay', 'statussettings', 'mode', 'setbotname', 'setcontextlink', 'setfont', 'setmenu', 'setmenuimage', 'setownername', 'setownernumber', 'setprefix', 'setstatusemoji', 'setstickerauthor', 'setstickerpackname', 'settimezone', 'setwatermark'];
@@ -64,12 +84,12 @@ const messageCache = new Map();
 function startGithubTracker(sock) {
     setInterval(() => {
         if (global.settings.updateRequired) return; 
-
         exec('git fetch origin main && git rev-list HEAD..origin/main --count', async (err, stdout) => {
             if (!err) {
                 const commitsBehind = parseInt(stdout.trim());
                 if (commitsBehind > 0) {
                     global.settings.updateRequired = true;
+                    global.saveDB();
                     await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { 
                         text: "⚠️ *NEW CODE DETECTED ON GITHUB*\n\nplease update the bot by sending .update otherwise you cant use the bot" 
                     });
@@ -121,21 +141,6 @@ async function startBot() {
             else await sock.sendPresenceUpdate('unavailable');
             
             startGithubTracker(sock);
-
-            if (!process.env.SESSION_ID) {
-                setTimeout(async () => {
-                    try {
-                        const files = fs.readdirSync('auth_info');
-                        const sessionData = {};
-                        files.forEach(file => { sessionData[file] = fs.readFileSync(path.join('auth_info', file), 'utf-8'); });
-                        const sessionString = Buffer.from(JSON.stringify(sessionData)).toString('base64');
-                        
-                        await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { 
-                            text: `🔑 *YOUR SESSION ID:*\n\n${sessionString}\n\n⚠️ Paste this string in your .env file next to 'SESSION_ID=' on your host.` 
-                        });
-                    } catch (err) { }
-                }, 5000);
-            }
         }
     });
 
@@ -150,15 +155,11 @@ async function startBot() {
                 if (global.settings.antidelete) {
                     const deletedKey = msg.message.protocolMessage.key;
                     const originalMsg = messageCache.get(deletedKey.id);
-                    
                     if (originalMsg) {
                         const deletedTime = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
                         const senderNum = (deletedKey.participant || deletedKey.remoteJid).split('@')[0];
                         const chatName = deletedKey.remoteJid.includes('@g.us') ? "Group Chat" : "Private Chat";
-                        const chatID = deletedKey.remoteJid;
-                        
-                        const notification = `♻️ *ANTI-DELETE ALERT* ♻️\n\n⏰ *Time Deleted:* ${deletedTime}\n👤 *Sender:* +${senderNum}\n📍 *Chat Type:* ${chatName}\n🆔 *Chat ID:* ${chatID}\n\n👇 *Recovered Message:*`;
-                        
+                        const notification = `♻️ *ANTI-DELETE ALERT* ♻️\n\n⏰ *Time:* ${deletedTime}\n👤 *Sender:* +${senderNum}\n📍 *Chat Type:* ${chatName}\n\n👇 *Recovered Message:*`;
                         await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { text: notification });
                         await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { forward: originalMsg });
                     }
@@ -166,9 +167,7 @@ async function startBot() {
                 return;
             }
 
-            if (messageCache.size > 500) {
-                messageCache.delete(messageCache.keys().next().value);
-            }
+            if (messageCache.size > 500) messageCache.delete(messageCache.keys().next().value);
             messageCache.set(msg.key.id, msg);
 
             if (msg.key.participant) msg.key.participant = msg.key.participant.split(':')[0] + '@s.whatsapp.net';
@@ -183,7 +182,7 @@ async function startBot() {
 
             if (from === 'status@broadcast') {
                 if (global.settings.autoreadstatus) await sock.readMessages([msg.key]);
-                if (global.settings.autoreactstatus) await sock.sendMessage('status@broadcast', { react: { text: '🔥', key: msg.key } }, { statusJidList: [msg.key.participant] });
+                if (global.settings.autoreactstatus) await sock.sendMessage('status@broadcast', { react: { text: global.botConfigText.statusEmoji, key: msg.key } }, { statusJidList: [msg.key.participant] });
                 return;
             }
 
@@ -194,9 +193,7 @@ async function startBot() {
             const command = args.shift().toLowerCase();
 
             if (global.settings.updateRequired && command !== 'update') {
-                return await sock.sendMessage(from, { 
-                    text: "please update the bot by sending .update otherwise you cant use the bot" 
-                }, { quoted: msg });
+                return await sock.sendMessage(from, { text: "please update the bot by sending .update otherwise you cant use the bot" }, { quoted: msg });
             }
 
             if (global.settings.autotyping) await sock.sendPresenceUpdate('composing', from);
@@ -208,13 +205,13 @@ async function startBot() {
                 const ramUsage = (process.memoryUsage().rss / 1024 / 1024).toFixed(2);
                 let speed = Date.now() - (msg.messageTimestamp * 1000);
                 if (speed < 0 || speed > 1000) speed = Math.floor(Math.random() * 30) + 15; 
-                const serverType = os.type() === 'Linux' ? 'Linux Engine' : os.type();
 
-                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📹 .video - Download Media\n│ 🎬 .tiktok - Download TikTok\n│ 📸 .instagram - Download Insta\n│ 📘 .facebook - Download FB\n│ 📝 .lyrics - Get lyrics\n│ 📦 .apk - Download App file\n╰──────────────────────────\n\n╭─── 🎨 *EPHOTO360 MENU* ───\n│ 🎨 .1917style\n│ 🎨 .advancedglow\n│ 🎨 .blackpinklogo\n│ 🎨 .blackpinkstyle\n│ 🎨 .cartoonstyle\n│ 🎨 .deletingtext\n│ 🎨 .dragonball\n│ 🎨 .effectclouds\n│ 🎨 .flag3dtext\n│ 🎨 .flagtext\n│ 🎨 .freecreate\n│ 🎨 .galaxystyle\n│ 🎨 .galaxywallpaper\n│ 🎨 .glitchtext\n│ 🎨 .glowingtext\n│ 🎨 .gradienttext\n│ 🎨 .graffiti\n│ 🎨 .incandescent\n│ 🎨 .lighteffects\n│ 🎨 .logomaker\n│ 🎨 .luxurygold\n│ 🎨 .makingneon\n│ 🎨 .matrix\n│ 🎨 .multicoloredneon\n│ 🎨 .neonglitch\n│ 🎨 .papercutstyle\n│ 🎨 .pixelglitch\n│ 🎨 .royaltext\n│ 🎨 .sand\n│ 🎨 .summerbeach\n│ 🎨 .topography\n│ 🎨 .typography\n│ 🎨 .watercolortext\n│ 🎨 .writetext\n╰───────────────────────\n\n╭─── 👥 *GROUP MENU* ───\n│ 🔊 .hidetag - Ghost tag\n│ 🏷️ .tagall - Tag everyone\n│ 🚀 .promote - Make Admin\n│ 📉 .demote - Remove Admin\n│ 🧨 .removeall - Nuke Group\n│ 👋 .setwelcome <text>\n│ 👋 .setgoodbye <text>\n│ ⚠️ .setwarn @user\n│ 🔄 .resetwarn @user\n╰──────────────────────\n\n╭─── ⚙️ *SETTINGS MENU* ───\n│ ⚙️ .getsettings\n│ ⚙️ .resetsetting\n│ ⚙️ .statussettings\n│ ⚙️ .alwaysonline on/off\n│ ⚙️ .autoread on/off\n│ ⚙️ .autoreadstatus on/off\n│ ⚙️ .autoreactstatus on/off\n│ ⚙️ .autoreact on/off\n│ ⚙️ .autotyping on/off\n│ ⚙️ .autotype on/off\n│ ⚙️ .autorecord on/off\n│ ⚙️ .autorecordtyping on/off\n│ ⚙️ .autoviewstatus on/off\n│ ⚙️ .antibug on/off\n│ ⚙️ .anticall on/off\n│ ⚙️ .antideletestatus on/off\n│ ⚙️ .antiedit on/off\n│ ⚙️ .antiviewonce on/off\n│ ⚙️ .autobio on/off\n│ ⚙️ .autoblock on/off\n│ ⚙️ .chatbot on/off\n│ ⚙️ .mode public/private\n│ ⚙️ .addbadword <word>\n│ ⚙️ .deletebadword <word>\n│ ⚙️ .addcountrycode <code>\n│ ⚙️ .delcountrycode <code>\n│ ⚙️ .listcountrycode\n│ ⚙️ .addignorelist <number>\n│ ⚙️ .delignorelist <number>\n│ ⚙️ .addsudo <number>\n│ ⚙️ .delsudo <number>\n│ ⚙️ .setanticallmsg <text>\n│ ⚙️ .delanticallmsg\n│ ⚙️ .showanticallmsg\n│ ⚙️ .testanticallmsg\n│ ⚙️ .statusdelay\n│ ⚙️ .setbotname <name>\n│ ⚙️ .setcontextlink <url>\n│ ⚙️ .setfont <font>\n│ ⚙️ .setmenu <type>\n│ ⚙️ .setmenuimage <url>\n│ ⚙️ .setownername <name>\n│ ⚙️ .setownernumber <num>\n│ ⚙️ .setprefix <char>\n│ ⚙️ .setstatusemoji <emoji>\n│ ⚙️ .setstickerauthor <name>\n│ ⚙️ .setstickerpackname <name>\n│ ⚙️ .settimezone <zone>\n│ ⚙️ .setwatermark <text>\n╰───────────────────────\n\n╭─── 🔍 *SEARCH MENU* ───\n│ 📞 .truecaller - Caller info\n╰────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n│ 👊 .rps - Rock Paper Scissors\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ ♻️ .antidelete on/off\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
+                // Dynamic Name from Database!
+                const menuText = `╔════ ≪ °❈ *${global.BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${global.BOT_CONFIG.owner}\n║ 💻 *Dev:* ${global.BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Mode:* ${global.botConfigText.mode.toUpperCase()}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📹 .video - Download Media\n│ 🎬 .tiktok - Download TikTok\n│ 📸 .instagram - Download Insta\n│ 📘 .facebook - Download FB\n│ 📝 .lyrics - Get lyrics\n│ 📦 .apk - Download App file\n╰──────────────────────────\n\n╭─── 🎨 *EPHOTO360 MENU* ───\n│ 🎨 .1917style\n│ 🎨 .advancedglow\n│ 🎨 .glitchtext\n│ 🎨 .makingneon\n│ _(and 30+ more effects!)_\n╰───────────────────────\n\n╭─── 👥 *GROUP MENU* ───\n│ 🔊 .hidetag - Ghost tag\n│ 🏷️ .tagall - Tag everyone\n│ 🚀 .promote - Make Admin\n│ 📉 .demote - Remove Admin\n│ 🧨 .removeall - Nuke Group\n│ 👋 .setwelcome <text>\n│ 👋 .setgoodbye <text>\n│ ⚠️ .setwarn @user\n│ 🔄 .resetwarn @user\n╰──────────────────────\n\n╭─── ⚙️ *SETTINGS MENU* ───\n│ ⚙️ .getsettings\n│ ⚙️ .alwaysonline on/off\n│ ⚙️ .autoread on/off\n│ ⚙️ .autotyping on/off\n│ ⚙️ .autoreactstatus on/off\n│ ⚙️ .antidelete on/off\n│ ⚙️ .mode public/private\n│ ⚙️ .setbotname <name>\n│ ⚙️ .setownername <name>\n│ ⚙️ .addbadword <word>\n│ _(and 40+ more settings!)_\n╰───────────────────────\n\n╭─── 🔍 *SEARCH MENU* ───\n│ 📞 .truecaller - Caller info\n╰────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n│ 👊 .rps - Rock Paper Scissors\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
                 
                 await sock.sendMessage(from, { text: menuText }, { quoted: msg });
             }
-            else if (command === 'info') await sock.sendMessage(from, { text: `*Enigma D20 is fully operational.*` }, { quoted: msg });
+            else if (command === 'info') await sock.sendMessage(from, { text: `*${global.BOT_CONFIG.name} is fully operational.*` }, { quoted: msg });
             else if (command === 'ping') {
                 const pSpeed = Date.now() - (msg.messageTimestamp * 1000);
                 const finalSpeed = pSpeed > 0 && pSpeed < 1000 ? pSpeed : Math.floor(Math.random() * 30) + 15;
@@ -245,22 +242,14 @@ async function startBot() {
     });
 }
 
-// 💥 AUTO-UPDATER & BOOTLOADER 💥
-// Yeh function Panel Restart hone par pehle repo clear karega aur naya data fetch karega
 function bootSequence() {
     console.log("🔄 [BOOT] Auto-repairing and forcefully syncing with GitHub...");
-    
     const forceUpdateCmd = `git init && git fetch https://github.com/nicholas-pp8/EnigmaD20.git main && git reset --hard FETCH_HEAD`;
-
-    exec(forceUpdateCmd, (err, stdout, stderr) => {
-        if(err) {
-            console.log("⚠️ [BOOT] Force-Sync skipped or failed. Starting bot normally...");
-        } else {
-            console.log("✅ [BOOT] Force-Sync complete! System is 100% up-to-date.");
-        }
-        startBot(); // Boot the actual bot after syncing
+    exec(forceUpdateCmd, (err) => {
+        if(err) console.log("⚠️ [BOOT] Force-Sync skipped or failed. Starting bot normally...");
+        else console.log("✅ [BOOT] Force-Sync complete! System is 100% up-to-date.");
+        startBot(); 
     });
 }
-
 bootSequence();
 
