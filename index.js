@@ -24,16 +24,14 @@ if (process.env.SESSION_ID && !fs.existsSync('auth_info')) {
     } catch(e) { console.log("Session Load Error", e); }
 }
 
-const { handlePlay, handleLyrics } = require('./src/download');
+const { handlePlay, handleLyrics, handleApk } = require('./src/download'); // Included handleApk here
 const { handleTtt, handleMove, handleScramble, handleAnswer } = require('./src/game');
 const { handleOwnerCommands } = require('./src/owner');
 
-// ⚙️ ADDED ANTIDELETE SETTING HERE
 global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: true, antidelete: false };
 const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
 const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217128296820869", "919339777647"];
 
-// ⚙️ ADDED ANTIDELETE TO COMMAND LIST
 const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm', 'schedule', 'antidelete'];
 
 const app = express();
@@ -53,7 +51,6 @@ function formatUptime(seconds) {
     return (dDisplay + hDisplay + mDisplay + sDisplay).replace(/,\s*$/, "");
 }
 
-// 💾 MEMORY CACHE: Aakhiri 500 messages ko save rakhne ke liye
 const messageCache = new Map();
 
 async function startBot() {
@@ -120,11 +117,10 @@ async function startBot() {
 
             const from = msg.key.remoteJid;
 
-            // 💥 ANTI-DELETE LOGIC: Delete hone wale messages ko pakadna 💥
             if (msg.message.protocolMessage && msg.message.protocolMessage.type === 0) {
                 if (global.settings.antidelete) {
                     const deletedKey = msg.message.protocolMessage.key;
-                    const originalMsg = messageCache.get(deletedKey.id); // Cache se message uthao
+                    const originalMsg = messageCache.get(deletedKey.id);
                     
                     if (originalMsg) {
                         const deletedTime = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: true });
@@ -134,15 +130,13 @@ async function startBot() {
                         
                         const notification = `♻️ *ANTI-DELETE ALERT* ♻️\n\n⏰ *Time Deleted:* ${deletedTime}\n👤 *Sender:* +${senderNum}\n📍 *Chat Type:* ${chatName}\n🆔 *Chat ID:* ${chatID}\n\n👇 *Recovered Message:*`;
                         
-                        // Seedha DEVELOPER (Yourself) ko send karega
                         await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { text: notification });
-                        await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { forward: originalMsg }); // Forward original deleted msg
+                        await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { forward: originalMsg });
                     }
                 }
-                return; // Delete event ko aage normal message ki tarah process mat karo
+                return;
             }
 
-            // 💾 NORMAL MESSAGES KO CACHE MEIN SAVE KARNA (Max 500 msgs to save RAM)
             if (messageCache.size > 500) {
                 messageCache.delete(messageCache.keys().next().value);
             }
@@ -180,7 +174,7 @@ async function startBot() {
                 if (speed < 0 || speed > 1000) speed = Math.floor(Math.random() * 30) + 15; 
                 const serverType = os.type() === 'Linux' ? 'Linux Engine' : os.type();
 
-                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📝 .lyrics - Get lyrics\n╰──────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ ♻️ .antidelete on/off - Auto-recover\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
+                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📝 .lyrics - Get lyrics\n│ 📦 .apk - Download App file\n╰──────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ ♻️ .antidelete on/off - Auto-recover\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
                 
                 await sock.sendMessage(from, { text: menuText }, { quoted: msg });
             }
@@ -197,6 +191,7 @@ async function startBot() {
             else if (ownerCommandsList.includes(command)) await handleOwnerCommands(sock, from, msg, args, command, isOwner);
             else if (command === 'play') await handlePlay(sock, from, msg, args);
             else if (command === 'lyrics') await handleLyrics(sock, from, msg, args);
+            else if (command === 'apk') await handleApk(sock, from, msg, args); // 💥 Added APK Trigger line
             else if (command === 'ttt') await handleTtt(sock, from, msg, args, senderNum);
             else if (command === 'move') await handleMove(sock, from, msg, args, senderNum);
             else if (command === 'scramble') await handleScramble(sock, from, msg, args);
