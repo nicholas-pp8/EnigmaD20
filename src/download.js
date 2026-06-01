@@ -9,10 +9,10 @@ const ffmpegInstaller = require('@ffmpeg-installer/ffmpeg');
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
-// 💥 THE FIXED UNIVERSAL DOWNLOADER 💥
+// 💥 THE FIXED UNIVERSAL DOWNLOADER (Using exact package functions) 💥
 async function universalDownloader(sock, from, msg, args, platform) {
     if (!args || args.length === 0) {
-        return await sock.sendMessage(from, { text: `⚠️ Please provide a ${platform} link!\nExample: .${platform.toLowerCase()} <link>` }, { quoted: msg });
+        return await sock.sendMessage(from, { text: `⚠️ Please provide a ${platform} link!\nExample: .${platform.toLowerCase().split('/')[0]} <link>` }, { quoted: msg });
     }
 
     const url = args.join(' ');
@@ -21,41 +21,41 @@ async function universalDownloader(sock, from, msg, args, platform) {
     try {
         let data;
         
-        // Smart Function Detector based on URL
-        if (url.includes('youtu') && typeof ab.ytmp4 === 'function') {
-            data = await ab.ytmp4(url);
-        } else if (url.includes('insta') && typeof ab.igdl === 'function') {
+        // Exact Function Mapping based on the X-Ray error screenshot!
+        if (platform === "YouTube/Video") {
+            data = await ab.youtube(url);
+        } else if (platform === "TikTok") {
+            data = await ab.ttdl(url);
+        } else if (platform === "Instagram") {
             data = await ab.igdl(url);
-        } else if (url.includes('tiktok') && typeof ab.tiktok === 'function') {
-            data = await ab.tiktok(url);
-        } else if (url.includes('facebook') && typeof ab.fbdl === 'function') {
-            data = await ab.fbdl(url);
-        } else if (typeof ab === 'function') {
-            data = await ab(url); // Direct function fallback
+        } else if (platform === "Facebook") {
+            data = await ab.fbdown(url);
         } else {
-            const methods = Object.keys(ab);
-            throw new Error(`Package API missing expected function. Available: ${methods.join(', ')}`);
+            // Fallback for random links
+            data = await ab.aio(url); 
         }
 
         if (!data) throw new Error("API returned empty data.");
 
-        // Extracting Link Smartly
-        let dlLink = data.url || data.video || data.link || data.hd || (data.data && data.data.url) || (data.data && data.data.video);
+        // Smart Extraction (handling different JSON structures from the API)
+        let dlLink = data.url || data.video || data.link || data.hd || (data.data && data.data.url) || (data.data && data.data.video) || (data.data && data.data.hd);
         
-        // Array Data extraction (for 720p logic)
+        // Array Data extraction (for 720p or highest quality logic)
         if (!dlLink && Array.isArray(data.data)) {
-            const format720 = data.data.find(f => f.quality === '720p' || f.resolution === '720p');
+            const format720 = data.data.find(f => f.quality === '720p' || f.resolution === '720p' || f.format === 'mp4');
             if (format720) dlLink = format720.url;
             else if (data.data[0] && data.data[0].url) dlLink = data.data[0].url;
         }
 
         // Medias extraction
         if (!dlLink && data.medias && Array.isArray(data.medias)) {
-            dlLink = data.medias[0].url;
+            const formatVideo = data.medias.find(m => m.extension === 'mp4' || m.quality === '720p' || m.quality === 'hd');
+            if (formatVideo) dlLink = formatVideo.url;
+            else dlLink = data.medias[0].url;
         }
 
         if (!dlLink) {
-            throw new Error(`Could not extract direct link. Raw: ${JSON.stringify(data).substring(0, 50)}...`);
+            throw new Error(`Could not extract direct link. Raw: ${JSON.stringify(data).substring(0, 80)}...`);
         }
 
         const isImage = dlLink.match(/\.(jpeg|jpg|gif|png)/i) || (data.type && data.type.includes('image'));
@@ -79,7 +79,7 @@ async function handleVideo(sock, from, msg, args) {
         const query = args.join(' ');
         const search = await yts(query);
         if(!search.videos || !search.videos.length) return sock.sendMessage(from, {text: "❌ Video not found on YouTube."});
-        args = [search.videos[0].url]; // Overwrite args with Youtube URL
+        args = [search.videos[0].url]; 
     }
     await universalDownloader(sock, from, msg, args, "YouTube/Video");
 }
@@ -98,13 +98,26 @@ async function handlePlay(sock, from, msg, args) {
         
         const processingMsg = await sock.sendMessage(from, { image: { url: video.thumbnail }, caption: `*${video.title}*\n\n⬇️ Downloading pure MP3 format...` }, { quoted: msg });
 
-        let data;
-        if (typeof ab.ytmp3 === 'function') data = await ab.ytmp3(video.url);
-        else if (typeof ab.yta === 'function') data = await ab.yta(video.url);
-        else if (typeof ab === 'function') data = await ab(video.url);
-        else throw new Error("Missing audio function.");
+        // Using exactly ab.youtube as revealed by X-Ray!
+        let data = await ab.youtube(video.url);
+        if (!data) throw new Error("Missing audio data.");
 
-        let audioLink = data.url || data.audio || data.download || (data.data && data.data.url) || data.link;
+        // We need audio specifically
+        let audioLink = data.audio || data.mp3;
+        
+        if (!audioLink && Array.isArray(data.data)) {
+            const formatAudio = data.data.find(f => f.quality === '128kbps' || f.format === 'mp3' || f.type === 'audio');
+            if (formatAudio) audioLink = formatAudio.url;
+        }
+        
+        if(!audioLink && data.medias && Array.isArray(data.medias)) {
+            const formatAudio = data.medias.find(m => m.extension === 'mp3' || m.audio);
+            if (formatAudio) audioLink = formatAudio.url;
+        }
+
+        // Ultimate fallback
+        if (!audioLink) audioLink = data.url || data.link || (data.data && data.data.url);
+        
         if (!audioLink) throw new Error("Link extract failed.");
 
         await sock.sendMessage(from, { audio: { url: audioLink }, mimetype: 'audio/mpeg' }, { quoted: processingMsg });
