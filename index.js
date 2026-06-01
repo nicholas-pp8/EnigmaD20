@@ -26,15 +26,17 @@ if (process.env.SESSION_ID && !fs.existsSync('auth_info')) {
 }
 
 const { handlePlay, handleLyrics, handleApk, handleVideo, handleTikTok, handleInstagram, handleFacebook } = require('./src/download'); 
-const { handleTtt, handleMove, handleScramble, handleAnswer, handleRps } = require('./src/game'); // 💥 Import handleRps
+const { handleTtt, handleMove, handleScramble, handleAnswer, handleRps } = require('./src/game'); 
 const { handleOwnerCommands } = require('./src/owner');
 const { handleTruecaller } = require('./src/search'); 
+const { handleGroupCommands } = require('./src/group'); // 💥 Import Group Commands
 
 global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: false, antidelete: false, updateRequired: false };
 const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
 const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217128296820869", "919339777647"];
 
 const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm', 'schedule', 'antidelete'];
+const groupCommandsList = ['hidetag', 'tagall', 'removeall', 'promote', 'demote']; // 💥 Group Commands List
 
 const app = express();
 app.get('/', (req, res) => res.send('Enigma D20 is running!'));
@@ -172,7 +174,6 @@ async function startBot() {
 
             const isFromMe = msg.key.fromMe;
             const senderNum = (isFromMe ? sock.user.id : (msg.key.participant || msg.key.remoteJid)).split('@')[0].split(':')[0];
-            const body = msg.message.conversation || msg.message.extendedTextMessage?.text || msg.message.imageMessage?.caption || msg.message.videoMessage?.caption || '';
             const isOwner = isFromMe || AUTHORIZED_NUMBERS.includes(senderNum); 
 
             if (from === 'status@broadcast') {
@@ -204,7 +205,7 @@ async function startBot() {
                 if (speed < 0 || speed > 1000) speed = Math.floor(Math.random() * 30) + 15; 
                 const serverType = os.type() === 'Linux' ? 'Linux Engine' : os.type();
 
-                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📹 .video - Download Media\n│ 🎬 .tiktok - Download TikTok\n│ 📸 .instagram - Download Insta\n│ 📘 .facebook - Download FB\n│ 📝 .lyrics - Get lyrics\n│ 📦 .apk - Download App file\n╰──────────────────────────\n\n╭─── 🔍 *SEARCH MENU* ───\n│ 📞 .truecaller - Caller info\n╰────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n│ 👊 .rps - Rock Paper Scissors\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ ♻️ .antidelete on/off - Auto-recover\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
+                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📹 .video - Download Media\n│ 🎬 .tiktok - Download TikTok\n│ 📸 .instagram - Download Insta\n│ 📘 .facebook - Download FB\n│ 📝 .lyrics - Get lyrics\n│ 📦 .apk - Download App file\n╰──────────────────────────\n\n╭─── 👥 *GROUP MENU* ───\n│ 🔊 .hidetag - Ghost tag\n│ 🏷️ .tagall - Tag everyone\n│ 🚀 .promote - Make Admin\n│ 📉 .demote - Remove Admin\n│ 🧨 .removeall - Nuke Group\n╰──────────────────────\n\n╭─── 🔍 *SEARCH MENU* ───\n│ 📞 .truecaller - Caller info\n╰────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n│ 👊 .rps - Rock Paper Scissors\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ ♻️ .antidelete on/off - Auto-recover\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
                 
                 await sock.sendMessage(from, { text: menuText }, { quoted: msg });
             }
@@ -219,6 +220,7 @@ async function startBot() {
                 await sock.sendMessage(from, { text: `⏳ *Bot is running since ${uptimeStr}*` }, { quoted: msg });
             }
             else if (ownerCommandsList.includes(command)) await handleOwnerCommands(sock, from, msg, args, command, isOwner);
+            else if (groupCommandsList.includes(command)) await handleGroupCommands(sock, from, msg, args, command, senderNum, isOwner); // 💥 Execution line for Group
             else if (command === 'play') await handlePlay(sock, from, msg, args);
             else if (command === 'video') await handleVideo(sock, from, msg, args);
             else if (command === 'tiktok') await handleTikTok(sock, from, msg, args);
@@ -231,7 +233,7 @@ async function startBot() {
             else if (command === 'move') await handleMove(sock, from, msg, args, senderNum);
             else if (command === 'scramble') await handleScramble(sock, from, msg, args);
             else if (command === 'ans') await handleAnswer(sock, from, msg, args);
-            else if (command === 'rps') await handleRps(sock, from, msg, args, senderNum); // 💥 Execution line for RPS
+            else if (command === 'rps') await handleRps(sock, from, msg, args, senderNum); 
             
         } catch (err) { console.error(err); }
     });
