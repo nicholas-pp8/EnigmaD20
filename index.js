@@ -30,6 +30,7 @@ const { handleTtt, handleMove, handleScramble, handleAnswer, handleRps } = requi
 const { handleOwnerCommands } = require('./src/owner');
 const { handleTruecaller } = require('./src/search'); 
 const { handleGroupCommands } = require('./src/group'); 
+const { handleEphoto } = require('./src/Ephoto360js/handler'); // 💥 Ephoto Import Added
 
 global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: false, antidelete: false, updateRequired: false };
 const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
@@ -37,6 +38,9 @@ const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217
 
 const ownerCommandsList = ['autoread', 'autoreadstatus', 'autoreactstatus', 'autotyping', 'alwaysonline', 'deletechat', 'del', 'deletefullchat', 'clear', 'vv', 'update', 'sm', 'schedule', 'antidelete'];
 const groupCommandsList = ['hidetag', 'tagall', 'removeall', 'promote', 'demote']; 
+
+// 💥 Dynamic Ephoto Commands List
+const ephotoCommands = ['1917style', 'advancedglow', 'blackpinklogo', 'blackpinkstyle', 'cartoonstyle', 'deletingtext', 'dragonball', 'effectclouds', 'flag3dtext', 'flagtext', 'freecreate', 'galaxystyle', 'galaxywallpaper', 'glitchtext', 'glowingtext', 'gradienttext', 'graffiti', 'incandescent', 'lighteffects', 'logomaker', 'luxurygold', 'makingneon', 'matrix', 'multicoloredneon', 'neonglitch', 'papercutstyle', 'pixelglitch', 'royaltext', 'sand', 'summerbeach', 'topography', 'typography', 'watercolortext', 'writetext'];
 
 const app = express();
 app.get('/', (req, res) => res.send('Enigma D20 is running!'));
@@ -175,7 +179,7 @@ async function startBot() {
             const isFromMe = msg.key.fromMe;
             const senderNum = (isFromMe ? sock.user.id : (msg.key.participant || msg.key.remoteJid)).split('@')[0].split(':')[0];
             
-            // 💥 FIX APPLIED HERE: Added the missing body variable line back! 💥
+            // Fixed body extraction from previous update
             const body = msg.message.conversation || msg.message.extendedTextMessage?.text || msg.message.imageMessage?.caption || msg.message.videoMessage?.caption || '';
             
             const isOwner = isFromMe || AUTHORIZED_NUMBERS.includes(senderNum); 
@@ -209,7 +213,7 @@ async function startBot() {
                 if (speed < 0 || speed > 1000) speed = Math.floor(Math.random() * 30) + 15; 
                 const serverType = os.type() === 'Linux' ? 'Linux Engine' : os.type();
 
-                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📹 .video - Download Media\n│ 🎬 .tiktok - Download TikTok\n│ 📸 .instagram - Download Insta\n│ 📘 .facebook - Download FB\n│ 📝 .lyrics - Get lyrics\n│ 📦 .apk - Download App file\n╰──────────────────────────\n\n╭─── 👥 *GROUP MENU* ───\n│ 🔊 .hidetag - Ghost tag\n│ 🏷️ .tagall - Tag everyone\n│ 🚀 .promote - Make Admin\n│ 📉 .demote - Remove Admin\n│ 🧨 .removeall - Nuke Group\n╰──────────────────────\n\n╭─── 🔍 *SEARCH MENU* ───\n│ 📞 .truecaller - Caller info\n╰────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n│ 👊 .rps - Rock Paper Scissors\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ ♻️ .antidelete on/off - Auto-recover\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
+                const menuText = `╔════ ≪ °❈ *${BOT_CONFIG.name.toUpperCase()}* ❈° ≫ ════╗\n║ 👑 *Owner:* ${BOT_CONFIG.owner}\n║ 💻 *Dev:* ${BOT_CONFIG.developer}\n╚════════════════════════════════╝\n\n╭─── ✧ *SYSTEM STATUS* ✧ ───\n│ 📅 *Date:* ${currentDate}\n│ ⏰ *Time:* ${currentTime} (IST)\n│ 🏓 *Speed:* ${speed} ms\n│ 💾 *RAM:* ${ramUsage} MB\n│ 🌐 *Server:* ${serverType}\n╰───────────────────────────\n\n╭─── 💡 *MAIN MENU* ───\n│ ℹ️ .info - Check status\n│ 🏓 .ping - Check speed\n│ ⏳ .runtime - Check uptime\n╰──────────────────────\n\n╭─── 🎧 *DOWNLOAD MENU* ───\n│ 🎵 .play - Download song\n│ 📹 .video - Download Media\n│ 🎬 .tiktok - Download TikTok\n│ 📸 .instagram - Download Insta\n│ 📘 .facebook - Download FB\n│ 📝 .lyrics - Get lyrics\n│ 📦 .apk - Download App file\n╰──────────────────────────\n\n╭─── 🎨 *EPHOTO360 MENU* ───\n│ 🎨 .glitchtext\n│ 🎨 .blackpinkstyle\n│ 🎨 .makingneon\n│ 🎨 .luxurygold\n│ 🎨 .matrix\n│ 🎨 .dragonball\n│ _(and 30+ more effects! type .<effect> <text>)_\n╰───────────────────────\n\n╭─── 👥 *GROUP MENU* ───\n│ 🔊 .hidetag - Ghost tag\n│ 🏷️ .tagall - Tag everyone\n│ 🚀 .promote - Make Admin\n│ 📉 .demote - Remove Admin\n│ 🧨 .removeall - Nuke Group\n╰──────────────────────\n\n╭─── 🔍 *SEARCH MENU* ───\n│ 📞 .truecaller - Caller info\n╰────────────────────────\n\n╭─── 🕹️ *GAME MENU* ───\n│ 🎮 .ttt @tag - Tic-Tac-Toe\n│ 🕹️ .move 1-9 - Game move\n│ 🔠 .scramble - Word Scramble\n│ 👊 .rps - Rock Paper Scissors\n╰──────────────────────\n\n╭─── 👑 *OWNER MENU* ───\n│ 📅 .sm - Schedule msg\n│ ♻️ .antidelete on/off - Auto-recover\n│ 👁️ .autoread - Auto-Read msgs\n│ 🖼️ .autoreadstatus - Auto-view status\n│ 🔥 .autoreactstatus - Auto-react status\n│ ⌨️ .autotyping - Auto-typing\n│ 🟢 .alwaysonline on/off - Online status\n│ 🗑️ .del - Delete msg\n│ 🧹 .clear - Clear chat\n│ 🔓 .vv - Bypass View Once\n│ 🔄 .update - Auto Update Bot\n╰───────────────────────`.trim();
                 
                 await sock.sendMessage(from, { text: menuText }, { quoted: msg });
             }
@@ -225,6 +229,7 @@ async function startBot() {
             }
             else if (ownerCommandsList.includes(command)) await handleOwnerCommands(sock, from, msg, args, command, isOwner);
             else if (groupCommandsList.includes(command)) await handleGroupCommands(sock, from, msg, args, command, senderNum, isOwner);
+            else if (ephotoCommands.includes(command)) await handleEphoto(sock, from, msg, command, args.join(' ')); // 💥 Ephoto Trigger
             else if (command === 'play') await handlePlay(sock, from, msg, args);
             else if (command === 'video') await handleVideo(sock, from, msg, args);
             else if (command === 'tiktok') await handleTikTok(sock, from, msg, args);
