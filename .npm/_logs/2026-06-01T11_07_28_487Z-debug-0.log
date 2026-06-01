@@ -1,0 +1,46 @@
+0 verbose cli /data/data/com.termux/files/usr/bin/node /data/data/com.termux/files/usr/bin/npm
+1 info using npm@11.16.0
+2 info using node@v26.2.0
+3 silly config load:file:/data/data/com.termux/files/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/data/data/com.termux/files/home/.npmrc
+5 silly config load:file:/data/data/com.termux/files/usr/etc/npmrc
+6 verbose title npm install ephoto360-scraper
+7 verbose argv "install" "ephoto360-scraper"
+8 verbose logfile logs-max:10 dir:/data/data/com.termux/files/home/.npm/_logs/2026-06-01T11_07_28_487Z-
+9 verbose logfile /data/data/com.termux/files/home/.npm/_logs/2026-06-01T11_07_28_487Z-debug-0.log
+10 silly logfile done cleaning log files
+11 silly packumentCache heap:1082130432 maxSize:270532608 maxEntrySize:135266304
+12 silly idealTree buildDeps
+13 silly fetch manifest ephoto360-scraper@*
+14 silly packumentCache full:https://registry.npmjs.org/ephoto360-scraper cache-miss
+15 http fetch GET 404 https://registry.npmjs.org/ephoto360-scraper 1103ms (cache skip)
+16 silly placeDep ROOT ephoto360-scraper@ OK for: home@1.0.0 want: *
+17 verbose stack HttpErrorGeneral: 404 Not Found - GET https://registry.npmjs.org/ephoto360-scraper - Not found
+17 verbose stack     at /data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/npm-registry-fetch/lib/check-response.js:103:15
+17 verbose stack     at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+17 verbose stack     at async RegistryFetcher.packument (/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/pacote/lib/registry.js:90:19)
+17 verbose stack     at async RegistryFetcher.manifest (/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/pacote/lib/registry.js:128:23)
+17 verbose stack     at async #fetchManifest (/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:1299:20)
+17 verbose stack     at async #nodeFromEdge (/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:1134:19)
+17 verbose stack     at async #buildDepStep (/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:978:15)
+17 verbose stack     at async Arborist.buildIdealTree (/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:178:7)
+17 verbose stack     at async Promise.all (index 1)
+17 verbose stack     at async Arborist.reify (/data/data/com.termux/files/usr/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/reify.js:112:5)
+18 verbose statusCode 404
+19 verbose pkgid ephoto360-scraper@*
+20 error code E404
+21 error 404 Not Found - GET https://registry.npmjs.org/ephoto360-scraper - Not found
+22 error 404
+23 error 404  The requested resource 'ephoto360-scraper@*' could not be found or you do not have permission to access it.
+24 error 404
+25 error 404 Note that you can also install from a
+26 error 404 tarball, folder, http url, or git url.
+27 silly unfinished npm timer reify 1780312051105
+28 silly unfinished npm timer reify:loadTrees 1780312051110
+29 verbose cwd /data/data/com.termux/files/home
+30 verbose os Linux 4.14.186-g629cb8c46-dirty
+31 verbose node v26.2.0
+32 verbose npm  v11.16.0
+33 verbose exit 1
+34 verbose code 1
+35 error A complete log of this run can be found in: /data/data/com.termux/files/home/.npm/_logs/2026-06-01T11_07_28_487Z-debug-0.log
