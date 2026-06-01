@@ -24,7 +24,7 @@ if (process.env.SESSION_ID && !fs.existsSync('auth_info')) {
     } catch(e) { console.log("Session Load Error", e); }
 }
 
-const { handlePlay, handleLyrics, handleApk } = require('./src/download'); // Included handleApk here
+const { handlePlay, handleLyrics, handleApk } = require('./src/download'); 
 const { handleTtt, handleMove, handleScramble, handleAnswer } = require('./src/game');
 const { handleOwnerCommands } = require('./src/owner');
 
@@ -191,7 +191,7 @@ async function startBot() {
             else if (ownerCommandsList.includes(command)) await handleOwnerCommands(sock, from, msg, args, command, isOwner);
             else if (command === 'play') await handlePlay(sock, from, msg, args);
             else if (command === 'lyrics') await handleLyrics(sock, from, msg, args);
-            else if (command === 'apk') await handleApk(sock, from, msg, args); // 💥 Added APK Trigger line
+            else if (command === 'apk') await handleApk(sock, from, msg, args); 
             else if (command === 'ttt') await handleTtt(sock, from, msg, args, senderNum);
             else if (command === 'move') await handleMove(sock, from, msg, args, senderNum);
             else if (command === 'scramble') await handleScramble(sock, from, msg, args);

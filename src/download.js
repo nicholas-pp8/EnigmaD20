@@ -1,5 +1,5 @@
 const ab = require('ab-downloader'); 
-const { youtube, apk } = require('btch-downloader');
+const apkmirror = require('apkmirror-downloader'); // 👈 Asli aur sahi package!
 const yts = require('yt-search');
 const axios = require('axios');
 const fs = require('fs');
@@ -93,7 +93,7 @@ async function handlePlay(sock, from, msg, args) {
     }
 }
 
-// 💥 FIX: DIRECT URL STREAMING FOR APK TO PREVENT RAM CRASH 💥
+// 💥 THE REAL APKMIRROR-DOWNLOADER FUNCTION 💥
 async function handleApk(sock, from, msg, args) {
     if (!args || args.length === 0) {
         return await sock.sendMessage(from, { text: "⚠️ Please provide an app name!\nExample: .apk whatsapp" }, { quoted: msg });
@@ -102,23 +102,36 @@ async function handleApk(sock, from, msg, args) {
     const appName = args.join(' ');
     
     try {
-        await sock.sendMessage(from, { text: `🔍 Searching for *${appName}* APK...` }, { quoted: msg });
+        await sock.sendMessage(from, { text: `🔍 Searching for *${appName}* via APKMirror-Downloader...` }, { quoted: msg });
 
-        const appData = await apk(appName);
-
-        let downloadLink = appData.url || appData.link || appData.download || (appData.data && appData.data.url);
-        let appTitle = appData.name || appData.title || appName;
-
-        if (!downloadLink) {
-            return await sock.sendMessage(from, { text: "❌ APK not found or API did not return a link." }, { quoted: msg });
+        let appData;
+        
+        // Smart detection for apkmirror-downloader module
+        if (typeof apkmirror.download === 'function') {
+            appData = await apkmirror.download(appName);
+        } else if (typeof apkmirror === 'function') {
+            appData = await apkmirror(appName);
+        } else if (typeof apkmirror.search === 'function') {
+            const searchResults = await apkmirror.search(appName);
+            appData = Array.isArray(searchResults) ? searchResults[0] : searchResults;
+        } else {
+            throw new Error("API structure not matched.");
         }
 
-        const infoText = `📦 *APK FOUND!*\n\n📝 *Name:* ${appTitle}\n\n⬇️ Sending file... _(Large files like games may take time or get rejected by WhatsApp's 100MB limit)_`;
+        // Link extraction logic
+        let downloadLink = appData?.download || appData?.url || appData?.link || (appData?.data && appData.data.url) || appData?.dl_link;
+        let appTitle = appData?.name || appData?.title || appName;
+
+        if (!downloadLink) {
+            return await sock.sendMessage(from, { text: "❌ Could not extract direct download link from the package." }, { quoted: msg });
+        }
+
+        const infoText = `📦 *APK FOUND!*\n\n📝 *Name:* ${appTitle}\n\n⬇️ Sending file directly... _(Large files may take a moment)_`;
         await sock.sendMessage(from, { text: infoText }, { quoted: msg });
 
         const cleanFileName = `${appTitle.replace(/[^a-zA-Z0-9]/g, '_')}.apk`;
 
-        // Direct URL passing instead of Buffer. Saves 100% RAM!
+        // Direct stream
         await sock.sendMessage(from, {
             document: { url: downloadLink },
             mimetype: 'application/vnd.android.package-archive',
@@ -127,7 +140,7 @@ async function handleApk(sock, from, msg, args) {
 
     } catch (error) {
         console.error("APK Downloader Error:", error);
-        await sock.sendMessage(from, { text: `❌ Failed to download APK.\n\n⚠️ *Reason:* The file might be too large for WhatsApp (Max 100MB limit) or the API blocked the request.\n_Error: ${error.message}_` }, { quoted: msg });
+        await sock.sendMessage(from, { text: `❌ Failed to download APK.\n\n⚠️ *Error Details:* ${error.message}` }, { quoted: msg });
     }
 }
 
