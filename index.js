@@ -5,7 +5,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const os = require('os'); 
-const { exec } = require('child_process'); // 👈 ADDED FOR GITHUB TRACKING
+const { exec } = require('child_process'); 
 
 const PAIRING_NUMBER = "916290371061"; 
 const DEVELOPER_NUMBER = "916290371061";
@@ -29,8 +29,8 @@ const { handlePlay, handleLyrics, handleApk } = require('./src/download');
 const { handleTtt, handleMove, handleScramble, handleAnswer } = require('./src/game');
 const { handleOwnerCommands } = require('./src/owner');
 
-// 💥 updateRequired flag add kiya hai bot ko lock karne ke liye 💥
-global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: true, antidelete: false, updateRequired: false };
+// 💥 FIX: alwaysonline ab by default "false" hai 💥
+global.settings = { autoread: false, autoreadstatus: false, autoreactstatus: false, autotyping: false, alwaysonline: false, antidelete: false, updateRequired: false };
 const BOT_CONFIG = { name: "Enigma D20", owner: "Abhrodeep Dey", developer: "Rohan Sharma" };
 const AUTHORIZED_NUMBERS = ["918100601505", "916290371061", "918282853822", "217128296820869", "919339777647"];
 
@@ -55,27 +55,22 @@ function formatUptime(seconds) {
 
 const messageCache = new Map();
 
-// 💥 THE GITHUB AUTO-TRACKER FUNCTION 💥
 function startGithubTracker(sock) {
     setInterval(() => {
-        // Agar pehle se lock hai toh baar baar check nahi karega
         if (global.settings.updateRequired) return; 
 
         exec('git fetch origin main && git rev-list HEAD..origin/main --count', async (err, stdout) => {
             if (!err) {
                 const commitsBehind = parseInt(stdout.trim());
                 if (commitsBehind > 0) {
-                    // GitHub par naya code detect ho gaya! System lock karo!
                     global.settings.updateRequired = true;
-                    
-                    // Developer (Yourself) ko notification bhej do
                     await sock.sendMessage(`${DEVELOPER_NUMBER}@s.whatsapp.net`, { 
                         text: "⚠️ *NEW CODE DETECTED ON GITHUB*\n\nplease update the bot by sending .update otherwise you cant use the bot" 
                     });
                 }
             }
         });
-    }, 60000); // Har 60 seconds (1 minute) mein GitHub check karega
+    }, 60000); 
 }
 
 async function startBot() {
@@ -115,10 +110,11 @@ async function startBot() {
             if (shouldReconnect) startBot();
         } else if (connection === 'open') {
             console.log(`\n[STATUS] Enigma D20 is online and fully loaded!`);
+            
+            // Ab bot start hote hi checking karega. Kyunki by default false hai, toh 'unavailable' bhej dega
             if (global.settings.alwaysonline) await sock.sendPresenceUpdate('available');
             else await sock.sendPresenceUpdate('unavailable');
             
-            // 💥 Connection open hote hi GitHub Tracker start kar do
             startGithubTracker(sock);
 
             if (!process.env.SESSION_ID) {
@@ -192,7 +188,6 @@ async function startBot() {
             const args = body.slice(1).trim().split(/ +/);
             const command = args.shift().toLowerCase();
 
-            // 💥 SYSTEM LOCK CHECK: Agar update required hai aur command .update nahi hai toh bot block kar dega
             if (global.settings.updateRequired && command !== 'update') {
                 return await sock.sendMessage(from, { 
                     text: "please update the bot by sending .update otherwise you cant use the bot" 
